@@ -12,7 +12,7 @@
     button { background-color: #28a745; color: white; font-weight: bold; border: none; cursor: pointer; transition: background-color 0.2s; }
     button:hover { background-color: #218838; }
     button:disabled { background-color: #aaa; cursor: not-allowed; }
-    .hidden { display: none; }
+    .hidden { display: none !important; }
     #loader, #reportLoader { text-align: center; padding: 20px; }
     .header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     #userInfo { flex-grow: 1; color: #555; font-size: 14px;}
@@ -101,6 +101,11 @@
       #strukArea .footer { text-align: center; margin-top: 10px; font-size: 9pt; }
     }
   </style>
+  <!-- FIX: sembunyikan kolom nego sampai tombol diklik -->
+<style>
+  .hidden { display: none !important; }
+  .price-control.hidden { display: none !important; }
+</style>
 </head>
 <body>
   <div class="container" id="loginPage">
@@ -958,3 +963,4 @@
   </script>
 </body>
 </html>
+
