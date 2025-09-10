@@ -210,10 +210,13 @@
             <button style="background-color: #6c757d;" onclick="batalPembayaran()">Kembali ke Keranjang</button>
           </div>
           <div class="card hidden" id="postTransactionCard">
-            <h4>Transaksi Berhasil!</h4>
-            <p style="text-align:center; color:#555; font-size: 14px;">Kembali ke kasir...</p>
-            <button id="btnCetakStruk" onclick="cetakStruk()">Cetak Struk</button>
-          </div>
+  <h4>Transaksi Berhasil!</h4>
+  <p style="text-align:center; color:#555; font-size: 14px;">
+    Silakan cetak struk atau kembali ke kasir.
+  </p>
+  <button id="btnCetakStruk" onclick="cetakStruk()">Cetak Struk</button>
+  <button style="background-color: #6c757d;" onclick="kembaliKeHalamanAwal()">Kembali ke Kasir</button>
+</div>
         </div>
       </div>
     </div>
@@ -697,7 +700,22 @@
       }
     }
     
-    function onTransaksiSuccess(response) {
+    function function onTransaksiSuccess(response) {
+  var btnKonfirmasi = document.getElementById('btnKonfirmasiPembayaran');
+  if (response === "Sukses" || (response && response.success)) {
+    // Tampilkan kartu selesai transaksi dan SIAPKAN struk
+    document.getElementById('paymentCard').classList.add('hidden');
+    document.getElementById('postTransactionCard').classList.remove('hidden');
+    generateStruk(); // siapkan struk untuk dicetak
+
+    // ❌ Tidak ada setTimeout di sini (tidak auto kembali)
+  } else {
+    alert("Gagal menyimpan transaksi: " + (response && response.error ? response.error : response));
+  }
+  btnKonfirmasi.disabled = false;
+  btnKonfirmasi.textContent = 'Konfirmasi & Simpan';
+}
+(response) {
       var btnKonfirmasi = document.getElementById('btnKonfirmasiPembayaran');
       if (response === "Sukses" || (response && response.success)) {
         document.getElementById('paymentCard').classList.add('hidden');
@@ -992,3 +1010,4 @@
   </script>
 </body>
 </html>
+
