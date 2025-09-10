@@ -56,8 +56,8 @@
     .report-detail-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
     .report-detail-table th, .report-detail-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
     .report-detail-table th { background-color: #f2f2f2; }
-    details summary { font-weight: bold; cursor: pointer; padding: 10px; background-color: #f1f1f1; border-radius: 8px; margin-top: 20px; list-style: none; /* Sembunyikan panah default */ position: relative; padding-left: 30px; }
-    details summary::-webkit-details-marker { display: none; /* Sembunyikan panah di Chrome/Safari */ }
+    details summary { font-weight: bold; cursor: pointer; padding: 10px; background-color: #f1f1f1; border-radius: 8px; margin-top: 20px; list-style: none; position: relative; padding-left: 30px; }
+    details summary::-webkit-details-marker { display: none; }
     details summary::before { content: '▶'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); }
     details[open] > summary::before { content: '▼'; }
     .cart-controls { flex-basis: 100%; display: flex; align-items: center; justify-content: space-between; background-color: #f8f9fa; padding: 8px; border-radius: 8px; margin-top: 8px; }
@@ -226,42 +226,32 @@
        ========================= */
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJVXMVdiDZ0VLQSypJtr2dy1gziXMdBMmNbrpUuzcxVXTN9_cxJ3iUvbSPum67jFagzw/exec';
 
+    // GET: simple request (tanpa header) agar tidak kena preflight CORS
     async function getData(action, payload = {}) {
       const url = new URL(SCRIPT_URL);
       url.searchParams.set('action', action);
-      if (payload && Object.keys(payload).length > 0) {
+      if (Object.keys(payload).length) {
         url.searchParams.set('payload', JSON.stringify(payload));
       }
-      const res = await fetch(url.toString(), {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
-        mode: 'cors',
-        credentials: 'omit'
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
-      const ct = res.headers.get('content-type') || '';
-      if (ct.includes('application/json')) return res.json();
-      const text = await res.text();
-      try { return JSON.parse(text); } catch (_) { return text; }
+      const res = await fetch(url.toString(), { method: 'GET' });
+      return res.json();
     }
 
+    // POST: kirim sebagai x-www-form-urlencoded (simple request)
     async function postData(action, payload = {}) {
+      const body = new URLSearchParams();
+      body.set('action', action);
+      body.set('payload', JSON.stringify(payload));
       const res = await fetch(SCRIPT_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        mode: 'cors',
-        credentials: 'omit',
-        body: JSON.stringify({ action, payload })
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+        body
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
-      const ct = res.headers.get('content-type') || '';
-      if (ct.includes('application/json')) return res.json();
-      const text = await res.text();
-      try { return JSON.parse(text); } catch (_) { return text; }
+      return res.json();
     }
 
     /* =========================
-       STATE & UI LOGIC (TIDAK DIUBAH)
+       STATE & UI LOGIC (TETAP)
        ========================= */
     var semuaProduk = [], keranjang = [], currentUser = null;
     var currentPage = 1;
@@ -690,9 +680,8 @@
       if (response === "Sukses" || (response && response.success === true) ) {
         document.getElementById('paymentCard').classList.add('hidden');
         document.getElementById('postTransactionCard').classList.remove('hidden');
-        generateStruk(); // Generate struk in the background
+        generateStruk(); // Generate struk
 
-        // Automatically return to the main page after 2.5 seconds
         setTimeout(function() {
             kembaliKeHalamanAwal();
         }, 2500); 
@@ -700,15 +689,6 @@
       } else {
         alert("Gagal menyimpan transaksi: " + (typeof response === 'string' ? response : JSON.stringify(response)));
       }
-      // Reset the confirmation button regardless of outcome
-      btnKonfirmasi.disabled = false;
-      btnKonfirmasi.textContent = 'Konfirmasi & Simpan';
-    }
-    
-    function onTransaksiFailure(error) {
-      // Tidak digunakan lagi; diganti try...catch di selesaikanTransaksi
-      alert("Terjadi kesalahan saat menyimpan transaksi: " + (error && error.message ? error.message : error));
-      var btnKonfirmasi = document.getElementById('btnKonfirmasiPembayaran');
       btnKonfirmasi.disabled = false;
       btnKonfirmasi.textContent = 'Konfirmasi & Simpan';
     }
@@ -805,7 +785,7 @@
       if (!currentUser) return;
       document.getElementById('reportLoader').classList.remove('hidden');
       document.getElementById('reportContent').classList.add('hidden');
-      document.getElementById('detailDropdownContainer').innerHTML = ''; // Kosongkan container
+      document.getElementById('detailDropdownContainer').innerHTML = '';
 
       try {
         const dataHarian = await getData('getLaporanHarian', { role: currentUser.role, cabang: currentUser.cabang });
@@ -868,14 +848,13 @@
     
     function tampilkanDetailLaporan(data) {
         var mainContainer = document.getElementById('detailDropdownContainer');
-        mainContainer.innerHTML = ''; // Selalu bersihkan container
+        mainContainer.innerHTML = '';
 
         if(data.error) {
             mainContainer.innerHTML = '<p style="color:red;">Gagal memuat detail.</p>';
             return;
         }
 
-        // Fungsi bantuan untuk membuat tabel HTML dari daftar transaksi
         function createDetailTable(transactions) {
             if (!transactions || transactions.length === 0) {
                 return '<p>Tidak ada detail transaksi untuk ditampilkan.</p>';
