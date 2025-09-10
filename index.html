@@ -2,57 +2,63 @@
 <html>
 <head>
   <title>Tes Koneksi ke Server Kasir</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+    pre { background-color: #eee; padding: 15px; border: 1px solid #ccc; white-space: pre-wrap; word-wrap: break-word; }
+    .success { color: green; font-weight: bold; font-size: 1.2em; }
+    .fail { color: red; font-weight: bold; font-size: 1.2em; }
+  </style>
 </head>
 <body>
-  <h1>Membuka Halaman Tes...</h1>
-  <p>Buka Console (tekan F12) untuk melihat laporan debugging.</p>
-  <pre id="log" style="white-space: pre-wrap; word-wrap: break-word;"></pre>
+  <h1>Tes Koneksi Sistematis v2.0</h1>
+  <p>Laporan debugging akan muncul di bawah ini.</p>
+  <pre id="log"></pre>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzYgVjZx9aefI6McP-8HMKFckXLrHGLQmd5Q4AwAkbAh4k-5MRxUCM5DoZe35chZg460w/exec';
+    // URL Deployment baru Anda sudah dimasukkan di bawah
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyWFSJX8LdG49luoW0GhC6kWBGgfF65GTkSaEkQTp-E2ILS7hhYx-82e-_dUd5t_ycHNg/exec';
     const logElement = document.getElementById('log');
 
-    function log(message) {
+    function log(message, type = '') {
       console.log(message);
-      logElement.textContent += message + '\n';
+      const line = document.createElement('div');
+      line.textContent = message;
+      if (type) {
+        line.className = type;
+      }
+      logElement.appendChild(line);
     }
 
     async function testConnection() {
-      log('--- MEMULAI TES KONEKSI SISTEMATIS ---');
+      log('--- MEMULAI TES KONEKSI v2.0 ---');
       log(`1. URL Target: ${SCRIPT_URL}`);
 
       try {
         log('2. Mencoba mengirim permintaan (fetch)...');
         const response = await fetch(SCRIPT_URL);
-        log(`3. Menerima respons dari server. Status: ${response.status} (${response.statusText})`);
+        log(`3. Menerima respons dari server. Status: ${response.status}`);
 
-        if (!response.ok) {
-          throw new Error(`Server merespons dengan error.`);
-        }
+        if (!response.ok) throw new Error(`Server merespons dengan error.`);
 
-        log('4. Mencoba membaca data sebagai JSON...');
         const result = await response.json();
-        log('5. Berhasil membaca data JSON dari server.');
+        log('4. Berhasil membaca data JSON dari server.');
 
-        if (result.success) {
-          log('--- HASIL TES: BERHASIL! ---');
-          log(`Server melaporkan sukses. Jumlah produk yang diterima: ${result.data.length}`);
-          if(result.data.length > 0) {
-            log('Data pertama: ' + JSON.stringify(result.data[0]));
-          }
+        if (result.success && result.version === "2.0") {
+          log('--- HASIL TES: BERHASIL! ---', 'success');
+          log(`Versi Server: ${result.version}`);
+          log(`Pesan dari Server: ${result.message}`);
+          log('Ini membuktikan server sudah diperbarui dan koneksi sudah benar!');
         } else {
-          throw new Error(`Server melaporkan kegagalan: ${result.error}`);
+          throw new Error(`Server masih menjalankan versi lama atau melaporkan error. Respons: ${JSON.stringify(result)}`);
         }
 
       } catch (error) {
-        log('--- HASIL TES: GAGAL! ---');
-        log(`Terjadi error pada salah satu langkah.`);
+        log('--- HASIL TES: GAGAL! ---', 'fail');
         log(`Pesan Error: ${error.message}`);
-        log('Ini biasanya terjadi karena masalah izin (CORS) atau kesalahan pada URL/Deployment. Pastikan Anda sudah melakukan deployment ulang dengan "Versi Baru" setelah mengganti kode Code.gs.');
+        log('Ini membuktikan proses deployment belum berhasil. Harap ulangi panduan deployment dengan teliti, pastikan memilih "New version".');
       }
     }
 
-    // Jalankan tes saat halaman dimuat
     testConnection();
   </script>
 </body>
