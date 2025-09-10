@@ -12,7 +12,7 @@
     button { background-color: #28a745; color: white; font-weight: bold; border: none; cursor: pointer; transition: background-color 0.2s; }
     button:hover { background-color: #218838; }
     button:disabled { background-color: #aaa; cursor: not-allowed; }
-    .hidden { display: none !important; }
+    .hidden { display: none !important; }               /* FIX: benar-benar sembunyi */
     #loader, #reportLoader { text-align: center; padding: 20px; }
     .header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     #userInfo { flex-grow: 1; color: #555; font-size: 14px;}
@@ -66,9 +66,10 @@
     .quantity-controls input { width: 50px; text-align: center; margin: 0 5px; height: auto; padding: 5px; -moz-appearance: textfield; }
     .quantity-controls input::-webkit-outer-spin-button, .quantity-controls input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     .price-control { display: flex; align-items: center; gap: 5px; }
+    .price-control.hidden { display: none !important; }  /* FIX: jaga-jaga */
     .price-control input { width: 90px; text-align: right; padding: 5px; height: auto;}
-    #strukArea { display: none; }
-    
+    #strukArea { display: none; } /* disembunyikan saat tampilan layar */
+
     /* Dark Mode Styles */
     body.dark-mode { background-color: #1a1a1a; color: #e0e0e0; }
     body.dark-mode .card { background-color: #2c2c2c; border: 1px solid #444; }
@@ -88,24 +89,29 @@
     body.dark-mode details summary { background-color: #3a3a3a; }
     body.dark-mode .report-detail-table th, body.dark-mode .report-detail-table td { border-color: #555; }
     body.dark-mode .report-detail-table th { background-color: #444; }
-    
+
+    /* CETAK 58mm */
     @media print {
+      @page { size: 58mm auto; margin: 0; }  /* lebar kertas 58mm */
       body * { visibility: hidden; }
       #strukArea, #strukArea * { visibility: visible; }
-      #strukArea { position: absolute; left: 0; top: 0; width: 100%; max-width: 58mm; font-family: 'Courier New', Courier, monospace; line-height: 1.4; font-size: 10pt; }
-      #strukArea h3 { text-align: center; margin: 0; font-size: 12pt; }
-      #strukArea p { margin: 2px 0; }
-      #strukArea table { width: 100%; border-collapse: collapse; margin-top: 5px; }
-      #strukArea td { text-align: left; padding: 1px 0; vertical-align: top; }
+
+      #strukArea {
+        position: absolute; left: 0; top: 0;
+        width: 58mm;                /* benar-benar 58mm */
+        padding: 2mm 3mm;
+        box-sizing: border-box;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 10pt; line-height: 1.35;
+      }
+      #strukArea h3 { text-align: center; margin: 0 0 4px 0; font-size: 12pt; }
+      #strukArea p  { margin: 2px 0; }
+      #strukArea table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+      #strukArea td { padding: 1px 0; vertical-align: top; }
       #strukArea .total-line td { border-top: 1px dashed #000; padding-top: 5px; }
-      #strukArea .footer { text-align: center; margin-top: 10px; font-size: 9pt; }
+      #strukArea .footer { text-align: center; margin-top: 8px; font-size: 9pt; }
     }
   </style>
-  <!-- FIX: sembunyikan kolom nego sampai tombol diklik -->
-<style>
-  .hidden { display: none !important; }
-  .price-control.hidden { display: none !important; }
-</style>
 </head>
 <body>
   <div class="container" id="loginPage">
@@ -226,38 +232,49 @@
   <div id="strukArea"></div>
 
   <script>
-    /* =========================
-       KONFIGURASI BACKEND & HELPERS FETCH
-       ========================= */
+    /* ==========================
+       KONFIG BACKEND
+       ========================== */
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJVXMVdiDZ0VLQSypJtr2dy1gziXMdBMmNbrpUuzcxVXTN9_cxJ3iUvbSPum67jFagzw/exec';
 
-    // GET: simple request (tanpa header) agar tidak kena preflight CORS
+    // Helper GET (baca data)
     async function getData(action, payload = {}) {
-      const url = new URL(SCRIPT_URL);
-      url.searchParams.set('action', action);
-      if (Object.keys(payload).length) {
-        url.searchParams.set('payload', JSON.stringify(payload));
+      try {
+        const url = SCRIPT_URL
+          + '?action=' + encodeURIComponent(action)
+          + '&payload=' + encodeURIComponent(JSON.stringify(payload));
+        const res = await fetch(url, { method: 'GET', cache: 'no-store', redirect: 'follow' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return await res.json();
+      } catch (err) {
+        throw err;
       }
-      const res = await fetch(url.toString(), { method: 'GET' });
-      return res.json();
     }
 
-    // POST: kirim sebagai x-www-form-urlencoded (simple request)
+    // Helper POST (kirim data)
     async function postData(action, payload = {}) {
-      const body = new URLSearchParams();
-      body.set('action', action);
-      body.set('payload', JSON.stringify(payload));
-      const res = await fetch(SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-        body
-      });
-      return res.json();
+      try {
+        const body = new URLSearchParams({
+          action,
+          payload: JSON.stringify(payload)
+        }).toString();
+        const res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body,
+          cache: 'no-store',
+          redirect: 'follow'
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return await res.json();
+      } catch (err) {
+        throw err;
+      }
     }
 
-    /* =========================
-       STATE & UI LOGIC (TETAP)
-       ========================= */
+    /* ==========================
+       STATE & UTIL
+       ========================== */
     var semuaProduk = [], keranjang = [], currentUser = null;
     var currentPage = 1;
     var itemsPerPage = 6;
@@ -276,7 +293,7 @@
       document.getElementById(elementId).classList.toggle('hidden');
     }
 
-    // PERBAIKAN FINAL: Fungsi untuk menampilkan/menyembunyikan form Nego
+    // Menampilkan/menyembunyikan form Nego
     function toggleNegoForm(index, show) {
         var btn = document.getElementById('nego-btn-' + index);
         var form = document.getElementById('price-control-' + index);
@@ -309,17 +326,18 @@
       }
     };
 
+    /* ==========================
+       AUTH
+       ========================== */
     async function login() {
-      var email = document.getElementById('emailInput').value;
-      if (!email) {
-        alert('Email tidak boleh kosong.');
-        return;
-      }
       try {
-        const res = await getData('cekLogin', { email: email });
+        var email = document.getElementById('emailInput').value;
+        if (!email) return alert('Email tidak boleh kosong.');
+        const res = await getData('cekLogin', { email });
         hasilLogin(res);
-      } catch (err) {
-        alert('Gagal terhubung ke server. ' + err.message);
+      } catch (e) {
+        console.error(e);
+        alert('Gagal terhubung ke server.');
       }
     }
     
@@ -346,13 +364,17 @@
         alert((res && res.message) || 'Login gagal. Respons tidak valid dari server.'); 
       } 
     }
-    
+
+    /* ==========================
+       PRODUK & KERANJANG
+       ========================== */
     async function muatProduk() {
       try {
-        const data = await getData('getProduk', {});
+        const data = await getData('getProduk');
         tampilkanProduk(data);
       } catch (e) {
-        alert('Gagal memuat produk. ' + e.message);
+        console.error(e);
+        alert('Gagal memuat produk.');
       }
     }
 
@@ -490,7 +512,6 @@
           var div = document.createElement('div');
           div.className = 'cart-item';
           var totalItem = item.qty * item.hargaSaatIni;
-          // PERBAIKAN FINAL: Struktur HTML baru yang lebih ringkas dan responsif
           div.innerHTML = 
             '<div class="cart-item-details">' +
             '  <div class="cart-item-info">' +
@@ -539,31 +560,32 @@
       document.getElementById('totalHarga').textContent = 'Rp ' + subtotal.toLocaleString();
       return { totalAkhir: subtotal, totalHemat: penghematan };
     }
-    
+
+    /* ==========================
+       DISKON MEMBER & ITEM MANUAL
+       ========================== */
     async function terapkanDiskon(btn) {
       var nomorHp = document.getElementById('memberId').value;
-      if (!nomorHp) {
-        alert('Silakan masukkan nomor HP member.');
-        return;
-      }
+      if (!nomorHp) return alert('Silakan masukkan nomor HP member.');
       btn.disabled = true;
       btn.textContent = 'Mengecek...';
       try {
-        const res = await getData('cekMember', { nomorHp: nomorHp });
+        const res = await getData('cekMember', { nomorHp });
         if (res.success) {
           alert('Harga member untuk ' + res.nama + ' berhasil diterapkan.');
           isMemberActive = true;
           btn.textContent = 'Harga Member Aktif';
           btn.classList.add('disabled');
         } else {
-          alert(res.message);
+          alert(res.message || 'Member tidak valid.');
           isMemberActive = false;
           btn.disabled = false;
           btn.textContent = 'Terapkan Diskon';
         }
         updateKeranjang();
       } catch (e) {
-        alert('Gagal menghubungi server untuk cek member. ' + e.message);
+        console.error(e);
+        alert('Gagal menghubungi server untuk cek member.');
         btn.disabled = false;
         btn.textContent = 'Terapkan Diskon';
       }
@@ -572,25 +594,22 @@
     async function daftarkanMemberBaru(btn) {
       var nama = document.getElementById('newMemberName').value;
       var nomorHp = document.getElementById('newMemberHp').value;
-      if (!nama || !nomorHp) {
-        alert('Nama dan Nomor HP tidak boleh kosong.');
-        return;
-      }
+      if (!nama || !nomorHp) return alert('Nama dan Nomor HP tidak boleh kosong.');
       btn.disabled = true;
       btn.textContent = 'Mendaftarkan...';
-      var dataMember = { nama: nama, nomorHp: nomorHp };
       try {
-        const res = await postData('tambahMemberBaru', dataMember);
-        alert(res.message || 'Permintaan diproses.');
+        const res = await postData('tambahMemberBaru', { nama, nomorHp });
+        alert(res.message || 'Selesai.');
         btn.disabled = false;
         btn.textContent = '+ Daftarkan';
         if (res.success) {
           document.getElementById('newMemberName').value = '';
           document.getElementById('newMemberHp').value = '';
-          toggleForm('memberFormContainer'); // Tutup form setelah sukses
+          toggleForm('memberFormContainer');
         }
       } catch (e) {
-        alert('Gagal menghubungi server untuk mendaftarkan member. ' + e.message);
+        console.error(e);
+        alert('Gagal menghubungi server untuk mendaftarkan member.');
         btn.disabled = false;
         btn.textContent = '+ Daftarkan';
       }
@@ -613,17 +632,17 @@
         updateKeranjang();
         document.getElementById('manualItemName').value = '';
         document.getElementById('manualItemPrice').value = '';
-        toggleForm('manualItemFormContainer'); // Tutup form setelah sukses
+        toggleForm('manualItemFormContainer');
       } else {
         alert('Nama item dan harga manual harus diisi.');
       }
     }
-    
+
+    /* ==========================
+       PEMBAYARAN & STRUK
+       ========================== */
     function tampilkanPembayaran() {
-      if (keranjang.length === 0) {
-        alert('Keranjang kosong.');
-        return;
-      }
+      if (keranjang.length === 0) return alert('Keranjang kosong.');
       var totalInfo = kalkulasiTotal();
       document.getElementById('paymentTotalTagihan').textContent = 'Rp ' + totalInfo.totalAkhir.toLocaleString();
       document.getElementById('keranjangCard').classList.add('hidden');
@@ -648,7 +667,7 @@
       var kembalian = uangDiterima - totalInfo.totalAkhir;
       document.getElementById('kembalian').textContent = 'Rp ' + (kembalian >= 0 ? kembalian.toLocaleString() : 0);
     }
-    
+
     async function selesaikanTransaksi(btn) {
       var metode = document.querySelector('input[name="metodePembayaran"]:checked').value;
       var detailMetode = (metode === 'Non-Tunai') ? document.getElementById('jenisNonTunai').value : '';
@@ -666,34 +685,36 @@
         cabang: currentUser.cabang
       };
 
-      lastTransactionData = dataTransaksi; // Simpan data untuk struk
+      lastTransactionData = dataTransaksi;
       btn.disabled = true;
       btn.textContent = 'Menyimpan...';
+
       try {
         const response = await postData('simpanTransaksi', dataTransaksi);
         onTransaksiSuccess(response);
       } catch (error) {
-        alert("Terjadi kesalahan saat menyimpan transaksi: " + error.message);
-        var btnKonfirmasi = document.getElementById('btnKonfirmasiPembayaran');
-        btnKonfirmasi.disabled = false;
-        btnKonfirmasi.textContent = 'Konfirmasi & Simpan';
+        onTransaksiFailure(error);
       }
     }
     
     function onTransaksiSuccess(response) {
       var btnKonfirmasi = document.getElementById('btnKonfirmasiPembayaran');
-      if (response === "Sukses" || (response && response.success === true) ) {
+      if (response === "Sukses" || (response && response.success)) {
         document.getElementById('paymentCard').classList.add('hidden');
         document.getElementById('postTransactionCard').classList.remove('hidden');
-        generateStruk(); // Generate struk
+        generateStruk(); // buat struk
 
-        setTimeout(function() {
-            kembaliKeHalamanAwal();
-        }, 2500); 
-
+        setTimeout(function() { kembaliKeHalamanAwal(); }, 2500);
       } else {
-        alert("Gagal menyimpan transaksi: " + (typeof response === 'string' ? response : JSON.stringify(response)));
+        alert("Gagal menyimpan transaksi: " + (response && response.error ? response.error : response));
       }
+      btnKonfirmasi.disabled = false;
+      btnKonfirmasi.textContent = 'Konfirmasi & Simpan';
+    }
+    
+    function onTransaksiFailure(error) {
+      alert("Terjadi kesalahan saat menyimpan transaksi: " + (error && error.message ? error.message : error));
+      var btnKonfirmasi = document.getElementById('btnKonfirmasiPembayaran');
       btnKonfirmasi.disabled = false;
       btnKonfirmasi.textContent = 'Konfirmasi & Simpan';
     }
@@ -716,7 +737,8 @@
       btnDiskon.classList.remove('disabled');
       updateKeranjang();
     }
-    
+
+    // STRUK 58mm (tanpa nama/ logo/ alamat)
     function generateStruk() {
       var strukContainer = document.getElementById('strukArea');
       var totalInfo = kalkulasiTotal();
@@ -725,20 +747,29 @@
       var time = now.toLocaleTimeString('id-ID');
 
       var itemsHtml = '';
-      lastTransactionData.items.forEach(function(item) {
+      (lastTransactionData.items || []).forEach(function(item) {
+        var nama = item.produk['Nama Produk'] || '';
+        var variasi = item.produk['Ukuran/Variasi'] || '';
+        var qty = item.qty || 0;
+        var harga = item.hargaAkhirSatuan || 0;
+        var total = qty * harga;
         itemsHtml +=
+          '<tr><td colspan="3">' + nama + (variasi ? ' ('+variasi+')' : '') + '</td></tr>' +
           '<tr>' +
-          '  <td colspan="3">' + item.produk['Nama Produk'] + '</td>' +
-          '</tr>' +
-          '<tr>' +
-          '  <td>' + item.qty + 'x</td>' +
-          '  <td style="text-align:right;">' + item.hargaAkhirSatuan.toLocaleString() + '</td>' +
-          '  <td style="text-align:right;">' + (item.qty * item.hargaAkhirSatuan).toLocaleString() + '</td>' +
+          '  <td>' + qty + ' x</td>' +
+          '  <td style="text-align:right;">' + harga.toLocaleString() + '</td>' +
+          '  <td style="text-align:right;">' + total.toLocaleString() + '</td>' +
           '</tr>';
       });
 
+      var metode = lastTransactionData.metodePembayaran || '-';
+      var detail = lastTransactionData.detailMetode ? ' (' + lastTransactionData.detailMetode + ')' : '';
+      var diskonRow = totalInfo.totalHemat > 0
+        ? '<tr><td colspan="2">Diskon</td><td style="text-align:right;">-' + totalInfo.totalHemat.toLocaleString() + '</td></tr>'
+        : '';
+
       strukContainer.innerHTML =
-        '<h3>Toko Tanaman</h3>' +
+        '<h3>Struk Belanja</h3>' +
         '<p>Cabang: ' + currentUser.cabang + '</p>' +
         '<p>Kasir: ' + currentUser.email + '</p>' +
         '<p>Tanggal: ' + date + ' ' + time + '</p>' +
@@ -750,23 +781,26 @@
         '    <td colspan="2">Subtotal</td>' +
         '    <td style="text-align:right;">' + (totalInfo.totalAkhir + totalInfo.totalHemat).toLocaleString() + '</td>' +
         '  </tr>' +
-        (totalInfo.totalHemat > 0 ?
+           diskonRow +
         '  <tr>' +
-        '    <td colspan="2">Diskon</td>' +
-        '    <td style="text-align:right;">-' + totalInfo.totalHemat.toLocaleString() + '</td>' +
-        '  </tr>' : '') +
+        '    <td colspan="2">Pembayaran</td>' +
+        '    <td style="text-align:right;">' + metode + detail + '</td>' +
+        '  </tr>' +
         '  <tr class="total-line">' +
         '    <td colspan="2"><strong>TOTAL</strong></td>' +
         '    <td style="text-align:right;"><strong>' + totalInfo.totalAkhir.toLocaleString() + '</strong></td>' +
         '  </tr>' +
         '</table>' +
-        '<p class="footer">Terima kasih telah berbelanja!</p>';
+        '<p class="footer">Terima kasih!</p>';
     }
 
     function cetakStruk() {
       window.print();
     }
-    
+
+    /* ==========================
+       LAPORAN
+       ========================== */
     function tampilkanHalaman(halaman) {
       var posPage = document.getElementById('posPage');
       var laporanPage = document.getElementById('laporanPage');
@@ -785,7 +819,7 @@
         navKasir.classList.add('active');
       }
     }
-    
+
     async function muatLaporan() {
       if (!currentUser) return;
       document.getElementById('reportLoader').classList.remove('hidden');
@@ -793,16 +827,15 @@
       document.getElementById('detailDropdownContainer').innerHTML = '';
 
       try {
-        const dataHarian = await getData('getLaporanHarian', { role: currentUser.role, cabang: currentUser.cabang });
-        tampilkanDataLaporan(dataHarian);
+        const data1 = await getData('getLaporanHarian', { role: currentUser.role, cabang: currentUser.cabang });
+        tampilkanDataLaporan(data1);
       } catch (e) {
         gagalMuatLaporan(e);
-        return;
       }
 
       try {
-        const dataDetail = await getData('getLaporanDetail', { role: currentUser.role, cabang: currentUser.cabang });
-        tampilkanDetailLaporan(dataDetail);
+        const data2 = await getData('getLaporanDetail', { role: currentUser.role, cabang: currentUser.cabang });
+        tampilkanDetailLaporan(data2);
       } catch (e) {
         gagalMuatLaporan(e);
       }
@@ -814,10 +847,7 @@
     }
     
     function tampilkanDataLaporan(data) {
-      if (data.error) {
-        gagalMuatLaporan(data.error);
-        return;
-      }
+      if (data.error) return gagalMuatLaporan(data.error);
       var reportContent = document.getElementById('reportContent');
       reportContent.innerHTML = '';
       var grandTotal = 0;
@@ -827,14 +857,14 @@
           '<div class="report-card">' +
           '<h4>Laporan Cabang: ' + report.cabang + '</h4>' +
           '<div class="report-grid">' +
-          '  <div><h4>Total Penjualan</h4><p>Rp ' + report.totalPenjualan.toLocaleString() + '</p></div>' +
-          '  <div><h4>Jumlah Transaksi</h4><p>' + report.jumlahTransaksi + '</p></div>' +
-          '  <div><h4>Penjualan Tunai</h4><p>Rp ' + report.totalTunai.toLocaleString() + '</p></div>' +
-          '  <div><h4>Penjualan Non-Tunai</h4><p>Rp ' + report.totalNonTunai.toLocaleString() + '</p></div>' +
+          '  <div><h4>Total Penjualan</h4><p>Rp ' + (report.totalPenjualan||0).toLocaleString() + '</p></div>' +
+          '  <div><h4>Jumlah Transaksi</h4><p>' + (report.jumlahTransaksi||0) + '</p></div>' +
+          '  <div><h4>Penjualan Tunai</h4><p>Rp ' + (report.totalTunai||0).toLocaleString() + '</p></div>' +
+          '  <div><h4>Penjualan Non-Tunai</h4><p>Rp ' + (report.totalNonTunai||0).toLocaleString() + '</p></div>' +
           '</div></div>';
         reportContent.innerHTML += reportHTML;
-        grandTotal += report.totalPenjualan;
-        grandTransaksi += report.jumlahTransaksi;
+        grandTotal += (report.totalPenjualan||0);
+        grandTransaksi += (report.jumlahTransaksi||0);
       });
       if (currentUser.role === 'Admin' && data.reports.length > 1) {
         document.getElementById('laporanTitle').textContent = 'Laporan Gabungan Semua Cabang';
@@ -844,7 +874,7 @@
           '<h4>Total Pemasukan: Rp ' + grandTotal.toLocaleString() + '</h4>' +
           '<h4>Total Transaksi: ' + grandTransaksi + '</h4></div>';
         reportContent.innerHTML += grandTotalHTML;
-      } else if (currentUser.role === 'Kasir' || data.reports.length === 1) {
+      } else {
         document.getElementById('laporanTitle').textContent = 'Laporan Penjualan Hari Ini (' + currentUser.cabang + ')';
       }
       document.getElementById('reportLoader').classList.add('hidden');
@@ -903,6 +933,9 @@
         }
     }
 
+    /* ==========================
+       UI BANTUAN
+       ========================== */
     function toggleInfoModalView() {
       var isChecked = document.getElementById('toggleInfoModal').checked;
       var adminInfoElements = document.querySelectorAll('.product-admin-info');
@@ -928,16 +961,12 @@
         var isSearchMatch = cardText.includes(searchTerm);
         return isCategoryMatch && isSearchMatch;
       });
-      allCards.forEach(function(card) {
-        card.style.display = 'none';
-      });
+      allCards.forEach(function(card) { card.style.display = 'none'; });
       var totalPages = Math.ceil(filteredCards.length / itemsPerPage);
       var startIndex = (currentPage - 1) * itemsPerPage;
       var endIndex = startIndex + itemsPerPage;
       var pageCards = filteredCards.slice(startIndex, endIndex);
-      pageCards.forEach(function(card) {
-        card.style.display = 'block';
-      });
+      pageCards.forEach(function(card) { card.style.display = 'block'; });
       updatePaginationControls(totalPages, filteredCards.length);
     }
     
@@ -963,4 +992,3 @@
   </script>
 </body>
 </html>
-
