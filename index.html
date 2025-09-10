@@ -10,13 +10,13 @@
   </style>
 </head>
 <body>
-  <h1>Tes Koneksi Sistematis v2.0</h1>
+  <h1>Tes Koneksi Sistematis v3.0</h1>
   <p>Laporan debugging akan muncul di bawah ini.</p>
   <pre id="log"></pre>
 
   <script>
     // URL Deployment baru Anda sudah dimasukkan di bawah
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyWFSJX8LdG49luoW0GhC6kWBGgfF65GTkSaEkQTp-E2ILS7hhYx-82e-_dUd5t_ycHNg/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzP_tdcYOPD5ShU52d5zM62dVftPDvC67EkgVWfQF-8QtRs7JXyRjcd_-qHZYfMmkNNcw/exec';
     const logElement = document.getElementById('log');
 
     function log(message, type = '') {
@@ -30,8 +30,14 @@
     }
 
     async function testConnection() {
-      log('--- MEMULAI TES KONEKSI v2.0 ---');
+      log('--- MEMULAI TES KONEKSI v3.0 ---');
       log(`1. URL Target: ${SCRIPT_URL}`);
+
+      if (SCRIPT_URL.includes('GANTI_DENGAN_URL')) {
+        log('--- HASIL TES: GAGAL! ---', 'fail');
+        log('Pesan Error: Anda belum memasukkan URL deployment baru di file index.html.');
+        return;
+      }
 
       try {
         log('2. Mencoba mengirim permintaan (fetch)...');
@@ -43,19 +49,19 @@
         const result = await response.json();
         log('4. Berhasil membaca data JSON dari server.');
 
-        if (result.success && result.version === "2.0") {
+        if (result.success && result.version === "3.0") {
           log('--- HASIL TES: BERHASIL! ---', 'success');
           log(`Versi Server: ${result.version}`);
           log(`Pesan dari Server: ${result.message}`);
-          log('Ini membuktikan server sudah diperbarui dan koneksi sudah benar!');
+          log('Koneksi sudah 100% benar. Kita bisa melanjutkan ke aplikasi kasir lengkap.');
         } else {
-          throw new Error(`Server masih menjalankan versi lama atau melaporkan error. Respons: ${JSON.stringify(result)}`);
+          throw new Error(`Server masih menjalankan versi lama atau melaporkan error.`);
         }
 
       } catch (error) {
         log('--- HASIL TES: GAGAL! ---', 'fail');
         log(`Pesan Error: ${error.message}`);
-        log('Ini membuktikan proses deployment belum berhasil. Harap ulangi panduan deployment dengan teliti, pastikan memilih "New version".');
+        log('Ini membuktikan masih ada masalah pada proses deployment atau URL yang dimasukkan.');
       }
     }
 
