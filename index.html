@@ -231,23 +231,24 @@
        ============================ */
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJVXMVdiDZ0VLQSypJtr2dy1gziXMdBMmNbrpUuzcxVXTN9_cxJ3iUvbSPum67jFagzw/exec';
 
-    async function getData(action, payload = {}) {
-      const url = `${SCRIPT_URL}?action=${encodeURIComponent(action)}&payload=${encodeURIComponent(JSON.stringify(payload))}&t=${Date.now()}`;
-      const res = await fetch(url, { method: 'GET' });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    }
 
-    async function postData(action, payload = {}) {
-      const url = `${SCRIPT_URL}?action=${encodeURIComponent(action)}`;
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json ? res.json() : res.text();
-    }
+
+    // GET helper untuk semua panggilan (aman dari CORS saat dihosting di GitHub Pages)
+async function getData(action, payload = {}) {
+  const url = new URL(SCRIPT_URL);
+  url.searchParams.set('action', action);
+  if (payload && Object.keys(payload).length) {
+    url.searchParams.set('payload', JSON.stringify(payload));
+  }
+  const res = await fetch(url.toString(), { method: 'GET' });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json ? res.json() : res.text();
+}
+
+// GANTI postData: gunakan GET juga agar tidak kena preflight CORS
+async function postData(action, payload = {}) {
+  return getData(action, payload);
+}
 
     /* ============================
        STATE & UTIL
@@ -942,3 +943,4 @@
   </script>
 </body>
 </html>
+
