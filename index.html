@@ -244,7 +244,7 @@
     var currentPage = 1, itemsPerPage = 6;
     var isMemberActive = false, lastTransactionData = {};
 
-    // --- API HELPER (VERSI SEDERHANA & BARU) ---
+    // --- API HELPER (VERSI DEBUG & STABIL) ---
     function showLoading(show) {
       document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
       const loaderElement = document.getElementById('loader');
@@ -252,12 +252,15 @@
     }
 
     async function getData(action, payload = {}) {
+      console.log(`[GET] Action: ${action}, Payload:`, payload);
       showLoading(true);
       const params = new URLSearchParams({ action, payload: JSON.stringify(payload) });
       try {
         const response = await fetch(`${SCRIPT_URL}?${params.toString()}`);
+        console.log(`[GET] Response Status: ${response.status}`);
         if (!response.ok) throw new Error(`Server error: ${response.statusText}`);
         const result = await response.json();
+        console.log(`[GET] Response Data:`, result);
         if (!result.success) throw new Error(result.error || 'Unknown server error');
         return result.data;
       } catch (error) {
@@ -265,11 +268,13 @@
         alert(`Gagal memuat data: ${error.message}`);
         return null;
       } finally {
+        console.log(`[GET] Finished Action: ${action}`);
         showLoading(false);
       }
     }
     
     async function postData(action, payload = {}) {
+      console.log(`[POST] Action: ${action}, Payload:`, payload);
       showLoading(true);
       try {
         const response = await fetch(SCRIPT_URL, {
@@ -277,8 +282,10 @@
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ action, payload })
         });
+        console.log(`[POST] Response Status: ${response.status}`);
         if (!response.ok) throw new Error(`Server error: ${response.statusText}`);
         const result = await response.json();
+        console.log(`[POST] Response Data:`, result);
         if (!result.success) throw new Error(result.message || 'Unknown server error');
         return result;
       } catch (error) {
@@ -286,6 +293,7 @@
         alert(`Gagal mengirim data: ${error.message}`);
         return { success: false, message: error.message };
       } finally {
+        console.log(`[POST] Finished Action: ${action}`);
         showLoading(false);
       }
     }
@@ -296,6 +304,7 @@
       if (!email) { alert('Email tidak boleh kosong.'); return; }
       
       const data = await getData('cekLogin', { email });
+      console.log("Login result:", data);
       if (data && data.success) {
         hasilLogin(data);
       } else {
@@ -304,123 +313,31 @@
     }
 
     async function muatProduk() {
+      console.log("Calling muatProduk...");
       const data = await getData('getProduk');
       tampilkanProduk(data);
     }
     
-    async function terapkanDiskon(btn) {
-      const nomorHp = document.getElementById('memberId').value;
-      if (!nomorHp) { alert('Silakan masukkan nomor HP member.'); return; }
-      btn.disabled = true;
-      btn.textContent = 'Mengecek...';
-      
-      const data = await getData('cekMember', { nomorHp });
-      
-      if (data && data.success) {
-        alert('Harga member untuk ' + data.nama + ' berhasil diterapkan.');
-        isMemberActive = true;
-        btn.textContent = 'Harga Member Aktif';
-        btn.classList.add('disabled');
-      } else {
-        alert(data ? data.message : 'Gagal mengecek member.');
-        isMemberActive = false;
-        btn.disabled = false;
-        btn.textContent = 'Terapkan Diskon';
-      }
-      updateKeranjang();
-      btn.disabled = (data && data.success);
-    }
-
-    async function daftarkanMemberBaru(btn) {
-      const nama = document.getElementById('newMemberName').value;
-      const nomorHp = document.getElementById('newMemberHp').value;
-      if (!nama || !nomorHp) { alert('Nama dan Nomor HP tidak boleh kosong.'); return; }
-      
-      btn.disabled = true;
-      btn.textContent = 'Mendaftarkan...';
-      const result = await postData('tambahMemberBaru', { dataMember: { nama, nomorHp } });
-      
-      alert(result.message || 'Gagal mendaftarkan member.');
-      if (result.success) {
-        document.getElementById('newMemberName').value = '';
-        document.getElementById('newMemberHp').value = '';
-        toggleForm('memberFormContainer');
-      }
-      btn.disabled = false;
-      btn.textContent = '+ Daftarkan';
-    }
-
-    async function selesaikanTransaksi(btn) {
-      const metode = document.querySelector('input[name="metodePembayaran"]:checked').value;
-      const detailMetode = (metode === 'Non-Tunai') ? document.getElementById('jenisNonTunai').value : '';
-      const totalInfo = kalkulasiTotal();
-      const dataTransaksi = {
-        items: keranjang.map(item => ({ produk: item.produk, qty: item.qty, hargaSaatIni: item.hargaSaatIni })),
-        memberId: document.getElementById('memberId').value,
-        metodePembayaran: metode,
-        detailMetode: detailMetode,
-        diskonJumlah: totalInfo.totalHemat,
-        totalAkhir: totalInfo.totalAkhir,
-        timestamp: new Date().toISOString(),
-        cabang: currentUser.cabang
-      };
-
-      lastTransactionData = dataTransaksi;
-      btn.disabled = true;
-      btn.textContent = 'Menyimpan...';
-
-      const result = await postData('simpanTransaksi', dataTransaksi);
-      if (result && result.success) {
-        onTransaksiSuccess(result.message);
-      } else {
-        onTransaksiFailure({ message: result.message || "Gagal menyimpan transaksi" });
-      }
-    }
-
-    async function muatLaporan() {
-      if (!currentUser) return;
-      const reportLoader = document.getElementById('reportLoader');
-      reportLoader.classList.remove('hidden');
-      document.getElementById('reportContent').classList.add('hidden');
-      document.getElementById('detailDropdownContainer').innerHTML = '';
-
-      const userInfo = { role: currentUser.role, cabang: currentUser.cabang };
-      const laporanData = await getData('getLaporanHarian', { userInfo });
-      const detailData = await getData('getLaporanDetail', { userInfo });
-      
-      if (laporanData) {
-        tampilkanDataLaporan({ reports: laporanData.reports });
-      } else {
-        gagalMuatLaporan({ toString: () => "Gagal memuat ringkasan laporan." });
-      }
-
-      if (detailData) {
-        tampilkanDetailLaporan(detailData);
-      } else {
-        gagalMuatLaporan({ toString: () => "Gagal memuat detail laporan." });
-      }
-    }
-
-    // --- FUNGSI BAWAAN (TIDAK ADA PERUBAHAN LOGIKA) ---
-    function toggleTheme() { var body = document.body; body.classList.toggle('dark-mode'); var theme = body.classList.contains('dark-mode') ? 'dark' : 'light'; localStorage.setItem('theme', theme); document.getElementById('theme-toggle').textContent = theme === 'dark' ? '🌙' : '☀️'; }
-    function toggleForm(elementId) { document.getElementById(elementId).classList.toggle('hidden'); }
-    function toggleNegoForm(index, show) { var btn = document.getElementById('nego-btn-' + index); var form = document.getElementById('price-control-' + index); if (show) { btn.classList.add('hidden'); form.classList.remove('hidden'); } else { btn.classList.remove('hidden'); form.classList.add('hidden'); } }
-    window.onload = function() { try { var savedUser = localStorage.getItem('currentUser'); if (savedUser) { setupApp(JSON.parse(savedUser)); } } catch (e) { console.error("Gagal memuat sesi:", e); localStorage.removeItem('currentUser'); } var savedTheme = localStorage.getItem('theme'); if (savedTheme === 'dark') { document.body.classList.add('dark-mode'); document.getElementById('theme-toggle').textContent = '🌙'; } else { document.getElementById('theme-toggle').textContent = '☀️'; } };
-    function logout() { if (confirm("Apakah Anda yakin ingin logout?")) { localStorage.removeItem('currentUser'); location.reload(); } }
-    function setupApp(user) { currentUser = user; document.getElementById('userInfo').innerHTML = '<span>Kasir: ' + currentUser.email + ' | Cabang: ' + currentUser.cabang + '</span> <a href="#" onclick="logout(); return false;">Logout</a>'; document.getElementById('loginPage').classList.add('hidden'); document.getElementById('appContainer').classList.remove('hidden'); muatProduk(); }
-    function hasilLogin(res) { if (res && res.success) { localStorage.setItem('currentUser', JSON.stringify(res.user)); setupApp(res.user); } else { alert((res && res.message) || 'Login gagal.'); } }
+    // --- FUNGSI BAWAAN (HANYA FUNGSI UTAMA YANG DIUBAH) ---
     function tampilkanProduk(data) {
+      console.log("tampilkanProduk called with data:", data);
       const loader = document.getElementById('loader');
       const mainContent = document.getElementById('mainContent');
+      const container = document.getElementById('produkList');
+      
+      // Langkah 1: Selalu sembunyikan loader dan tampilkan konten utama
       loader.classList.add('hidden'); 
       mainContent.classList.remove('hidden'); 
+      container.innerHTML = ''; // Kosongkan list produk
 
-      var container = document.getElementById('produkList');
-      container.innerHTML = '';
+      // Langkah 2: Periksa apakah data valid. Jika tidak, tampilkan error di UI.
       if (!data || !Array.isArray(data)) {
-        container.innerHTML = `<p style="text-align:center;color:red;grid-column: 1 / -1;">Gagal memuat produk. Coba refresh halaman.</p>`;
+        container.innerHTML = `<p style="text-align:center;color:red;grid-column: 1 / -1;">Gagal memuat produk. Coba refresh halaman atau periksa koneksi.</p>`;
+        console.error("Data produk tidak valid atau null.");
         return;
       }
+      
+      // Langkah 3: Jika data valid, lanjutkan seperti biasa
       semuaProduk = data; 
       var filterSelect = document.getElementById('categorySelect');
       filterSelect.innerHTML = '';
@@ -447,6 +364,95 @@
       toggleInfoModalView();
       updateProductView();
     }
+    
+    // --- Sisa fungsi tidak diubah karena logikanya sudah benar ---
+    async function terapkanDiskon(btn) {
+      const nomorHp = document.getElementById('memberId').value;
+      if (!nomorHp) { alert('Silakan masukkan nomor HP member.'); return; }
+      btn.disabled = true;
+      btn.textContent = 'Mengecek...';
+      const data = await getData('cekMember', { nomorHp });
+      if (data && data.success) {
+        alert('Harga member untuk ' + data.nama + ' berhasil diterapkan.');
+        isMemberActive = true;
+        btn.textContent = 'Harga Member Aktif';
+        btn.classList.add('disabled');
+      } else {
+        alert(data ? data.message : 'Gagal mengecek member.');
+        isMemberActive = false;
+        btn.disabled = false;
+        btn.textContent = 'Terapkan Diskon';
+      }
+      updateKeranjang();
+      btn.disabled = (data && data.success);
+    }
+    async function daftarkanMemberBaru(btn) {
+      const nama = document.getElementById('newMemberName').value;
+      const nomorHp = document.getElementById('newMemberHp').value;
+      if (!nama || !nomorHp) { alert('Nama dan Nomor HP tidak boleh kosong.'); return; }
+      btn.disabled = true;
+      btn.textContent = 'Mendaftarkan...';
+      const result = await postData('tambahMemberBaru', { dataMember: { nama, nomorHp } });
+      alert(result.message || 'Gagal mendaftarkan member.');
+      if (result.success) {
+        document.getElementById('newMemberName').value = '';
+        document.getElementById('newMemberHp').value = '';
+        toggleForm('memberFormContainer');
+      }
+      btn.disabled = false;
+      btn.textContent = '+ Daftarkan';
+    }
+    async function selesaikanTransaksi(btn) {
+      const metode = document.querySelector('input[name="metodePembayaran"]:checked').value;
+      const detailMetode = (metode === 'Non-Tunai') ? document.getElementById('jenisNonTunai').value : '';
+      const totalInfo = kalkulasiTotal();
+      const dataTransaksi = {
+        items: keranjang.map(item => ({ produk: item.produk, qty: item.qty, hargaSaatIni: item.hargaSaatIni })),
+        memberId: document.getElementById('memberId').value,
+        metodePembayaran: metode,
+        detailMetode: detailMetode,
+        diskonJumlah: totalInfo.totalHemat,
+        totalAkhir: totalInfo.totalAkhir,
+        timestamp: new Date().toISOString(),
+        cabang: currentUser.cabang
+      };
+      lastTransactionData = dataTransaksi;
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+      const result = await postData('simpanTransaksi', dataTransaksi);
+      if (result && result.success) {
+        onTransaksiSuccess(result.message);
+      } else {
+        onTransaksiFailure({ message: result.message || "Gagal menyimpan transaksi" });
+      }
+    }
+    async function muatLaporan() {
+      if (!currentUser) return;
+      const reportLoader = document.getElementById('reportLoader');
+      reportLoader.classList.remove('hidden');
+      document.getElementById('reportContent').classList.add('hidden');
+      document.getElementById('detailDropdownContainer').innerHTML = '';
+      const userInfo = { role: currentUser.role, cabang: currentUser.cabang };
+      const laporanData = await getData('getLaporanHarian', { userInfo });
+      const detailData = await getData('getLaporanDetail', { userInfo });
+      if (laporanData) {
+        tampilkanDataLaporan({ reports: laporanData.reports });
+      } else {
+        gagalMuatLaporan({ toString: () => "Gagal memuat ringkasan laporan." });
+      }
+      if (detailData) {
+        tampilkanDetailLaporan(detailData);
+      } else {
+        gagalMuatLaporan({ toString: () => "Gagal memuat detail laporan." });
+      }
+    }
+    function toggleTheme() { var body = document.body; body.classList.toggle('dark-mode'); var theme = body.classList.contains('dark-mode') ? 'dark' : 'light'; localStorage.setItem('theme', theme); document.getElementById('theme-toggle').textContent = theme === 'dark' ? '🌙' : '☀️'; }
+    function toggleForm(elementId) { document.getElementById(elementId).classList.toggle('hidden'); }
+    function toggleNegoForm(index, show) { var btn = document.getElementById('nego-btn-' + index); var form = document.getElementById('price-control-' + index); if (show) { btn.classList.add('hidden'); form.classList.remove('hidden'); } else { btn.classList.remove('hidden'); form.classList.add('hidden'); } }
+    window.onload = function() { console.log("Window loaded. Checking for saved user."); try { var savedUser = localStorage.getItem('currentUser'); console.log("Saved user data:", savedUser); if (savedUser) { setupApp(JSON.parse(savedUser)); } } catch (e) { console.error("Gagal memuat sesi:", e); localStorage.removeItem('currentUser'); } var savedTheme = localStorage.getItem('theme'); if (savedTheme === 'dark') { document.body.classList.add('dark-mode'); document.getElementById('theme-toggle').textContent = '🌙'; } else { document.getElementById('theme-toggle').textContent = '☀️'; } };
+    function logout() { if (confirm("Apakah Anda yakin ingin logout?")) { localStorage.removeItem('currentUser'); location.reload(); } }
+    function setupApp(user) { console.log("Setting up app for user:", user); currentUser = user; document.getElementById('userInfo').innerHTML = '<span>Kasir: ' + currentUser.email + ' | Cabang: ' + currentUser.cabang + '</span> <a href="#" onclick="logout(); return false;">Logout</a>'; document.getElementById('loginPage').classList.add('hidden'); document.getElementById('appContainer').classList.remove('hidden'); muatProduk(); }
+    function hasilLogin(res) { if (res && res.success) { localStorage.setItem('currentUser', JSON.stringify(res.user)); setupApp(res.user); } else { alert((res && res.message) || 'Login gagal.'); } }
     function tambahKeKeranjang(index) { var produk = semuaProduk[index]; var itemAda = keranjang.find(function(item) { return item.produk['ID Produk'] === produk['ID Produk'] && item.produk['Ukuran/Variasi'] === produk['Ukuran/Variasi']; }); var hargaJual = parseInt(produk['Harga Jual']) || 0; var hargaMember = parseInt(produk['Harga Member']) || 0; var hargaEfektif = (isMemberActive && hargaMember > 0 && hargaMember < hargaJual) ? hargaMember : hargaJual; if (itemAda) { itemAda.qty++; } else { keranjang.push({ produk: produk, qty: 1, hargaSaatIni: hargaEfektif }); } updateKeranjang(); }
     function ubahJumlah(index, amount) { var item = keranjang[index]; if (item) { item.qty += amount; if (item.qty <= 0) { hapusItem(index); } else { updateKeranjang(); } } }
     function ubahHarga(inputElement, index) { var item = keranjang[index]; if (item) { var newPrice = parseInt(inputElement.value); if (isNaN(newPrice) || newPrice < 0) { var hargaJual = parseInt(item.produk['Harga Jual']) || 0; var hargaMember = parseInt(item.produk['Harga Member']) || 0; item.hargaSaatIni = (isMemberActive && hargaMember > 0 && hargaMember < hargaJual) ? hargaMember : hargaJual; } else { item.hargaSaatIni = newPrice; } updateKeranjang(); } }
@@ -477,5 +483,4 @@
   </script>
 </body>
 </html>
-", could you fix the error from the console?
 
