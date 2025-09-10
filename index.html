@@ -12,7 +12,7 @@
     button { background-color: #28a745; color: white; font-weight: bold; border: none; cursor: pointer; transition: background-color 0.2s; }
     button:hover { background-color: #218838; }
     button:disabled { background-color: #aaa; cursor: not-allowed; }
-    .hidden { display: none !important; }               /* FIX: benar-benar sembunyi */
+    .hidden { display: none; }
     #loader, #reportLoader { text-align: center; padding: 20px; }
     .header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     #userInfo { flex-grow: 1; color: #555; font-size: 14px;}
@@ -66,11 +66,10 @@
     .quantity-controls input { width: 50px; text-align: center; margin: 0 5px; height: auto; padding: 5px; -moz-appearance: textfield; }
     .quantity-controls input::-webkit-outer-spin-button, .quantity-controls input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     .price-control { display: flex; align-items: center; gap: 5px; }
-    .price-control.hidden { display: none !important; }  /* FIX: jaga-jaga */
     .price-control input { width: 90px; text-align: right; padding: 5px; height: auto;}
-    #strukArea { display: none; } /* disembunyikan saat tampilan layar */
-
-    /* Dark Mode Styles */
+    #strukArea { display: none; }
+    
+    /* Dark Mode */
     body.dark-mode { background-color: #1a1a1a; color: #e0e0e0; }
     body.dark-mode .card { background-color: #2c2c2c; border: 1px solid #444; }
     body.dark-mode h2, body.dark-mode h3, body.dark-mode h4 { color: #f5f5f5; }
@@ -90,27 +89,21 @@
     body.dark-mode .report-detail-table th, body.dark-mode .report-detail-table td { border-color: #555; }
     body.dark-mode .report-detail-table th { background-color: #444; }
 
-    /* CETAK 58mm */
+    /* Print: lebar thermal 58mm */
     @media print {
-      @page { size: 58mm auto; margin: 0; }  /* lebar kertas 58mm */
       body * { visibility: hidden; }
       #strukArea, #strukArea * { visibility: visible; }
-
-      #strukArea {
-        position: absolute; left: 0; top: 0;
-        width: 58mm;                /* benar-benar 58mm */
-        padding: 2mm 3mm;
-        box-sizing: border-box;
-        font-family: 'Courier New', Courier, monospace;
-        font-size: 10pt; line-height: 1.35;
-      }
-      #strukArea h3 { text-align: center; margin: 0 0 4px 0; font-size: 12pt; }
-      #strukArea p  { margin: 2px 0; }
-      #strukArea table { width: 100%; border-collapse: collapse; margin-top: 4px; }
-      #strukArea td { padding: 1px 0; vertical-align: top; }
+      #strukArea { position: absolute; left: 0; top: 0; width: 100%; max-width: 58mm; font-family: 'Courier New', Courier, monospace; line-height: 1.4; font-size: 10pt; }
+      #strukArea h3 { text-align: center; margin: 0; font-size: 12pt; }
+      #strukArea p { margin: 2px 0; }
+      #strukArea table { width: 100%; border-collapse: collapse; margin-top: 5px; }
+      #strukArea td { text-align: left; padding: 1px 0; vertical-align: top; }
       #strukArea .total-line td { border-top: 1px dashed #000; padding-top: 5px; }
-      #strukArea .footer { text-align: center; margin-top: 8px; font-size: 9pt; }
+      #strukArea .footer { text-align: center; margin-top: 10px; font-size: 9pt; }
     }
+
+    /* FIX: sembunyikan kolom nego sampai tombol diklik */
+    .price-control.hidden { display: none !important; }
   </style>
 </head>
 <body>
@@ -210,13 +203,11 @@
             <button style="background-color: #6c757d;" onclick="batalPembayaran()">Kembali ke Keranjang</button>
           </div>
           <div class="card hidden" id="postTransactionCard">
-  <h4>Transaksi Berhasil!</h4>
-  <p style="text-align:center; color:#555; font-size: 14px;">
-    Silakan cetak struk atau kembali ke kasir.
-  </p>
-  <button id="btnCetakStruk" onclick="cetakStruk()">Cetak Struk</button>
-  <button style="background-color: #6c757d;" onclick="kembaliKeHalamanAwal()">Kembali ke Kasir</button>
-</div>
+            <h4>Transaksi Berhasil!</h4>
+            <p style="text-align:center; color:#555; font-size: 14px;">Silakan cetak struk atau kembali ke kasir.</p>
+            <button id="btnCetakStruk" onclick="cetakStruk()">Cetak Struk</button>
+            <button style="background-color: #6c757d;" onclick="kembaliKeHalamanAwal()">Kembali ke Kasir</button>
+          </div>
         </div>
       </div>
     </div>
@@ -235,49 +226,32 @@
   <div id="strukArea"></div>
 
   <script>
-    /* ==========================
-       KONFIG BACKEND
-       ========================== */
+    /* ============================
+       KONFIGURASI BACKEND (FETCH)
+       ============================ */
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJVXMVdiDZ0VLQSypJtr2dy1gziXMdBMmNbrpUuzcxVXTN9_cxJ3iUvbSPum67jFagzw/exec';
 
-    // Helper GET (baca data)
     async function getData(action, payload = {}) {
-      try {
-        const url = SCRIPT_URL
-          + '?action=' + encodeURIComponent(action)
-          + '&payload=' + encodeURIComponent(JSON.stringify(payload));
-        const res = await fetch(url, { method: 'GET', cache: 'no-store', redirect: 'follow' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return await res.json();
-      } catch (err) {
-        throw err;
-      }
+      const url = `${SCRIPT_URL}?action=${encodeURIComponent(action)}&payload=${encodeURIComponent(JSON.stringify(payload))}&t=${Date.now()}`;
+      const res = await fetch(url, { method: 'GET' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
     }
 
-    // Helper POST (kirim data)
     async function postData(action, payload = {}) {
-      try {
-        const body = new URLSearchParams({
-          action,
-          payload: JSON.stringify(payload)
-        }).toString();
-        const res = await fetch(SCRIPT_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body,
-          cache: 'no-store',
-          redirect: 'follow'
-        });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return await res.json();
-      } catch (err) {
-        throw err;
-      }
+      const url = `${SCRIPT_URL}?action=${encodeURIComponent(action)}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json ? res.json() : res.text();
     }
 
-    /* ==========================
+    /* ============================
        STATE & UTIL
-       ========================== */
+       ============================ */
     var semuaProduk = [], keranjang = [], currentUser = null;
     var currentPage = 1;
     var itemsPerPage = 6;
@@ -296,7 +270,7 @@
       document.getElementById(elementId).classList.toggle('hidden');
     }
 
-    // Menampilkan/menyembunyikan form Nego
+    // Tampilkan/ sembunyikan form Nego
     function toggleNegoForm(index, show) {
         var btn = document.getElementById('nego-btn-' + index);
         var form = document.getElementById('price-control-' + index);
@@ -329,18 +303,18 @@
       }
     };
 
-    /* ==========================
+    /* ============================
        AUTH
-       ========================== */
+       ============================ */
     async function login() {
+      const email = document.getElementById('emailInput').value;
+      if (!email) { alert('Email tidak boleh kosong.'); return; }
       try {
-        var email = document.getElementById('emailInput').value;
-        if (!email) return alert('Email tidak boleh kosong.');
         const res = await getData('cekLogin', { email });
         hasilLogin(res);
-      } catch (e) {
-        console.error(e);
-        alert('Gagal terhubung ke server.');
+      } catch (err) {
+        console.error(err);
+        alert('Gagal terhubung ke server: ' + (err.message || err));
       }
     }
     
@@ -368,16 +342,16 @@
       } 
     }
 
-    /* ==========================
-       PRODUK & KERANJANG
-       ========================== */
+    /* ============================
+       PRODUK
+       ============================ */
     async function muatProduk() {
       try {
         const data = await getData('getProduk');
         tampilkanProduk(data);
       } catch (e) {
-        console.error(e);
         alert('Gagal memuat produk.');
+        console.error(e);
       }
     }
 
@@ -563,13 +537,13 @@
       document.getElementById('totalHarga').textContent = 'Rp ' + subtotal.toLocaleString();
       return { totalAkhir: subtotal, totalHemat: penghematan };
     }
-
-    /* ==========================
-       DISKON MEMBER & ITEM MANUAL
-       ========================== */
+    
     async function terapkanDiskon(btn) {
       var nomorHp = document.getElementById('memberId').value;
-      if (!nomorHp) return alert('Silakan masukkan nomor HP member.');
+      if (!nomorHp) {
+        alert('Silakan masukkan nomor HP member.');
+        return;
+      }
       btn.disabled = true;
       btn.textContent = 'Mengecek...';
       try {
@@ -580,14 +554,13 @@
           btn.textContent = 'Harga Member Aktif';
           btn.classList.add('disabled');
         } else {
-          alert(res.message || 'Member tidak valid.');
+          alert(res.message || 'Member tidak aktif/terdaftar.');
           isMemberActive = false;
           btn.disabled = false;
           btn.textContent = 'Terapkan Diskon';
         }
         updateKeranjang();
       } catch (e) {
-        console.error(e);
         alert('Gagal menghubungi server untuk cek member.');
         btn.disabled = false;
         btn.textContent = 'Terapkan Diskon';
@@ -597,12 +570,16 @@
     async function daftarkanMemberBaru(btn) {
       var nama = document.getElementById('newMemberName').value;
       var nomorHp = document.getElementById('newMemberHp').value;
-      if (!nama || !nomorHp) return alert('Nama dan Nomor HP tidak boleh kosong.');
+      if (!nama || !nomorHp) {
+        alert('Nama dan Nomor HP tidak boleh kosong.');
+        return;
+      }
       btn.disabled = true;
       btn.textContent = 'Mendaftarkan...';
+      var dataMember = { nama: nama, nomorHp: nomorHp };
       try {
-        const res = await postData('tambahMemberBaru', { nama, nomorHp });
-        alert(res.message || 'Selesai.');
+        const res = await postData('tambahMemberBaru', dataMember);
+        alert(res.message || 'Terima kasih.');
         btn.disabled = false;
         btn.textContent = '+ Daftarkan';
         if (res.success) {
@@ -611,41 +588,20 @@
           toggleForm('memberFormContainer');
         }
       } catch (e) {
-        console.error(e);
         alert('Gagal menghubungi server untuk mendaftarkan member.');
         btn.disabled = false;
         btn.textContent = '+ Daftarkan';
       }
     }
 
-    function tambahItemManual() {
-      var name = document.getElementById('manualItemName').value;
-      var price = parseInt(document.getElementById('manualItemPrice').value);
-      if (name && price > 0) {
-        var manualProduct = {
-          'ID Produk': 'MANUAL-' + Date.now(),
-          'Nama Produk': name,
-          'Ukuran/Variasi': 'Custom',
-          'Harga Jual': price,
-          'Harga Member': price,
-          'Harga Modal': 0,
-          'Supplier': 'Internal'
-        };
-        keranjang.push({ produk: manualProduct, qty: 1, hargaSaatIni: price });
-        updateKeranjang();
-        document.getElementById('manualItemName').value = '';
-        document.getElementById('manualItemPrice').value = '';
-        toggleForm('manualItemFormContainer');
-      } else {
-        alert('Nama item dan harga manual harus diisi.');
-      }
-    }
-
-    /* ==========================
+    /* ============================
        PEMBAYARAN & STRUK
-       ========================== */
+       ============================ */
     function tampilkanPembayaran() {
-      if (keranjang.length === 0) return alert('Keranjang kosong.');
+      if (keranjang.length === 0) {
+        alert('Keranjang kosong.');
+        return;
+      }
       var totalInfo = kalkulasiTotal();
       document.getElementById('paymentTotalTagihan').textContent = 'Rp ' + totalInfo.totalAkhir.toLocaleString();
       document.getElementById('keranjangCard').classList.add('hidden');
@@ -670,7 +626,7 @@
       var kembalian = uangDiterima - totalInfo.totalAkhir;
       document.getElementById('kembalian').textContent = 'Rp ' + (kembalian >= 0 ? kembalian.toLocaleString() : 0);
     }
-
+    
     async function selesaikanTransaksi(btn) {
       var metode = document.querySelector('input[name="metodePembayaran"]:checked').value;
       var detailMetode = (metode === 'Non-Tunai') ? document.getElementById('jenisNonTunai').value : '';
@@ -688,41 +644,23 @@
         cabang: currentUser.cabang
       };
 
-      lastTransactionData = dataTransaksi;
+      lastTransactionData = dataTransaksi; // Simpan data untuk struk
       btn.disabled = true;
       btn.textContent = 'Menyimpan...';
-
       try {
         const response = await postData('simpanTransaksi', dataTransaksi);
         onTransaksiSuccess(response);
-      } catch (error) {
-        onTransaksiFailure(error);
+      } catch (e) {
+        onTransaksiFailure(e);
       }
     }
     
-    function function onTransaksiSuccess(response) {
-  var btnKonfirmasi = document.getElementById('btnKonfirmasiPembayaran');
-  if (response === "Sukses" || (response && response.success)) {
-    // Tampilkan kartu selesai transaksi dan SIAPKAN struk
-    document.getElementById('paymentCard').classList.add('hidden');
-    document.getElementById('postTransactionCard').classList.remove('hidden');
-    generateStruk(); // siapkan struk untuk dicetak
-
-    // ❌ Tidak ada setTimeout di sini (tidak auto kembali)
-  } else {
-    alert("Gagal menyimpan transaksi: " + (response && response.error ? response.error : response));
-  }
-  btnKonfirmasi.disabled = false;
-  btnKonfirmasi.textContent = 'Konfirmasi & Simpan';
-}
-(response) {
+    function onTransaksiSuccess(response) {
       var btnKonfirmasi = document.getElementById('btnKonfirmasiPembayaran');
       if (response === "Sukses" || (response && response.success)) {
         document.getElementById('paymentCard').classList.add('hidden');
         document.getElementById('postTransactionCard').classList.remove('hidden');
-        generateStruk(); // buat struk
-
-        setTimeout(function() { kembaliKeHalamanAwal(); }, 2500);
+        generateStruk();
       } else {
         alert("Gagal menyimpan transaksi: " + (response && response.error ? response.error : response));
       }
@@ -755,8 +693,7 @@
       btnDiskon.classList.remove('disabled');
       updateKeranjang();
     }
-
-    // STRUK 58mm (tanpa nama/ logo/ alamat)
+    
     function generateStruk() {
       var strukContainer = document.getElementById('strukArea');
       var totalInfo = kalkulasiTotal();
@@ -765,26 +702,17 @@
       var time = now.toLocaleTimeString('id-ID');
 
       var itemsHtml = '';
-      (lastTransactionData.items || []).forEach(function(item) {
-        var nama = item.produk['Nama Produk'] || '';
-        var variasi = item.produk['Ukuran/Variasi'] || '';
-        var qty = item.qty || 0;
-        var harga = item.hargaAkhirSatuan || 0;
-        var total = qty * harga;
+      lastTransactionData.items.forEach(function(item) {
         itemsHtml +=
-          '<tr><td colspan="3">' + nama + (variasi ? ' ('+variasi+')' : '') + '</td></tr>' +
           '<tr>' +
-          '  <td>' + qty + ' x</td>' +
-          '  <td style="text-align:right;">' + harga.toLocaleString() + '</td>' +
-          '  <td style="text-align:right;">' + total.toLocaleString() + '</td>' +
+          '  <td colspan="3">' + item.produk['Nama Produk'] + '</td>' +
+          '</tr>' +
+          '<tr>' +
+          '  <td>' + item.qty + 'x</td>' +
+          '  <td style="text-align:right;">' + item.hargaAkhirSatuan.toLocaleString() + '</td>' +
+          '  <td style="text-align:right;">' + (item.qty * item.hargaAkhirSatuan).toLocaleString() + '</td>' +
           '</tr>';
       });
-
-      var metode = lastTransactionData.metodePembayaran || '-';
-      var detail = lastTransactionData.detailMetode ? ' (' + lastTransactionData.detailMetode + ')' : '';
-      var diskonRow = totalInfo.totalHemat > 0
-        ? '<tr><td colspan="2">Diskon</td><td style="text-align:right;">-' + totalInfo.totalHemat.toLocaleString() + '</td></tr>'
-        : '';
 
       strukContainer.innerHTML =
         '<h3>Struk Belanja</h3>' +
@@ -799,26 +727,26 @@
         '    <td colspan="2">Subtotal</td>' +
         '    <td style="text-align:right;">' + (totalInfo.totalAkhir + totalInfo.totalHemat).toLocaleString() + '</td>' +
         '  </tr>' +
-           diskonRow +
+        (totalInfo.totalHemat > 0 ?
         '  <tr>' +
-        '    <td colspan="2">Pembayaran</td>' +
-        '    <td style="text-align:right;">' + metode + detail + '</td>' +
-        '  </tr>' +
+        '    <td colspan="2">Diskon</td>' +
+        '    <td style="text-align:right;">-' + totalInfo.totalHemat.toLocaleString() + '</td>' +
+        '  </tr>' : '') +
         '  <tr class="total-line">' +
         '    <td colspan="2"><strong>TOTAL</strong></td>' +
         '    <td style="text-align:right;"><strong>' + totalInfo.totalAkhir.toLocaleString() + '</strong></td>' +
         '  </tr>' +
         '</table>' +
-        '<p class="footer">Terima kasih!</p>';
+        '<p class="footer">Terima kasih telah berbelanja!</p>';
     }
 
     function cetakStruk() {
       window.print();
     }
 
-    /* ==========================
+    /* ============================
        LAPORAN
-       ========================== */
+       ============================ */
     function tampilkanHalaman(halaman) {
       var posPage = document.getElementById('posPage');
       var laporanPage = document.getElementById('laporanPage');
@@ -845,15 +773,12 @@
       document.getElementById('detailDropdownContainer').innerHTML = '';
 
       try {
-        const data1 = await getData('getLaporanHarian', { role: currentUser.role, cabang: currentUser.cabang });
-        tampilkanDataLaporan(data1);
-      } catch (e) {
-        gagalMuatLaporan(e);
-      }
-
-      try {
-        const data2 = await getData('getLaporanDetail', { role: currentUser.role, cabang: currentUser.cabang });
-        tampilkanDetailLaporan(data2);
+        const [harian, detail] = await Promise.all([
+          getData('getLaporanHarian', { role: currentUser.role, cabang: currentUser.cabang }),
+          getData('getLaporanDetail', { role: currentUser.role, cabang: currentUser.cabang })
+        ]);
+        tampilkanDataLaporan(harian);
+        tampilkanDetailLaporan(detail);
       } catch (e) {
         gagalMuatLaporan(e);
       }
@@ -865,7 +790,10 @@
     }
     
     function tampilkanDataLaporan(data) {
-      if (data.error) return gagalMuatLaporan(data.error);
+      if (data.error) {
+        gagalMuatLaporan(data.error);
+        return;
+      }
       var reportContent = document.getElementById('reportContent');
       reportContent.innerHTML = '';
       var grandTotal = 0;
@@ -875,14 +803,14 @@
           '<div class="report-card">' +
           '<h4>Laporan Cabang: ' + report.cabang + '</h4>' +
           '<div class="report-grid">' +
-          '  <div><h4>Total Penjualan</h4><p>Rp ' + (report.totalPenjualan||0).toLocaleString() + '</p></div>' +
-          '  <div><h4>Jumlah Transaksi</h4><p>' + (report.jumlahTransaksi||0) + '</p></div>' +
-          '  <div><h4>Penjualan Tunai</h4><p>Rp ' + (report.totalTunai||0).toLocaleString() + '</p></div>' +
-          '  <div><h4>Penjualan Non-Tunai</h4><p>Rp ' + (report.totalNonTunai||0).toLocaleString() + '</p></div>' +
+          '  <div><h4>Total Penjualan</h4><p>Rp ' + report.totalPenjualan.toLocaleString() + '</p></div>' +
+          '  <div><h4>Jumlah Transaksi</h4><p>' + report.jumlahTransaksi + '</p></div>' +
+          '  <div><h4>Penjualan Tunai</h4><p>Rp ' + report.totalTunai.toLocaleString() + '</p></div>' +
+          '  <div><h4>Penjualan Non-Tunai</h4><p>Rp ' + report.totalNonTunai.toLocaleString() + '</p></div>' +
           '</div></div>';
         reportContent.innerHTML += reportHTML;
-        grandTotal += (report.totalPenjualan||0);
-        grandTransaksi += (report.jumlahTransaksi||0);
+        grandTotal += report.totalPenjualan;
+        grandTransaksi += report.jumlahTransaksi;
       });
       if (currentUser.role === 'Admin' && data.reports.length > 1) {
         document.getElementById('laporanTitle').textContent = 'Laporan Gabungan Semua Cabang';
@@ -892,7 +820,7 @@
           '<h4>Total Pemasukan: Rp ' + grandTotal.toLocaleString() + '</h4>' +
           '<h4>Total Transaksi: ' + grandTransaksi + '</h4></div>';
         reportContent.innerHTML += grandTotalHTML;
-      } else {
+      } else if (currentUser.role === 'Kasir' || data.reports.length === 1) {
         document.getElementById('laporanTitle').textContent = 'Laporan Penjualan Hari Ini (' + currentUser.cabang + ')';
       }
       document.getElementById('reportLoader').classList.add('hidden');
@@ -951,9 +879,9 @@
         }
     }
 
-    /* ==========================
-       UI BANTUAN
-       ========================== */
+    /* ============================
+       FILTER PRODUK & PAGINASI
+       ============================ */
     function toggleInfoModalView() {
       var isChecked = document.getElementById('toggleInfoModal').checked;
       var adminInfoElements = document.querySelectorAll('.product-admin-info');
@@ -979,12 +907,16 @@
         var isSearchMatch = cardText.includes(searchTerm);
         return isCategoryMatch && isSearchMatch;
       });
-      allCards.forEach(function(card) { card.style.display = 'none'; });
+      allCards.forEach(function(card) {
+        card.style.display = 'none';
+      });
       var totalPages = Math.ceil(filteredCards.length / itemsPerPage);
       var startIndex = (currentPage - 1) * itemsPerPage;
       var endIndex = startIndex + itemsPerPage;
       var pageCards = filteredCards.slice(startIndex, endIndex);
-      pageCards.forEach(function(card) { card.style.display = 'block'; });
+      pageCards.forEach(function(card) {
+        card.style.display = 'block';
+      });
       updatePaginationControls(totalPages, filteredCards.length);
     }
     
@@ -1010,4 +942,3 @@
   </script>
 </body>
 </html>
-
