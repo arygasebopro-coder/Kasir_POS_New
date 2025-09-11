@@ -16,12 +16,10 @@
     --dark-bg:#2d2d2d; --dark-card:#1a1a1a;
     --shadow:0 6px 16px rgba(0,0,0,.08); --radius:16px;
     
-    /* IMPROVED DARK MODE COLORS */
     --tab-inactive:#64748b; --tab-inactive-dark:#94a3b8;
     --tab-active-bg:#1e40af; --tab-active-bg-dark:#3b82f6;
   }
   
-  /* DARK THEME overrides */
   body.dark{
     --bg:#0f172a; --card:#1e293b; --text:#e2e8f0; --muted:#94a3b8; --ring:#475569;
     --shadow:0 8px 18px rgba(0,0,0,.55);
@@ -54,7 +52,6 @@
     transition:color 0.3s ease;
   }
 
-  /* IMPROVED TABS - BETTER DARK MODE VISIBILITY */
   .tabs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px}
   .tab{
     padding:14px;
@@ -98,7 +95,6 @@
 
   .row-between{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 
-  /* produk grid */
   .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   @media(min-width:760px){ .grid{grid-template-columns:repeat(3,minmax(0,1fr))} }
   .p-card{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;
@@ -115,25 +111,23 @@
            transition:all 0.2s ease}
   .add-btn:hover{background:#1b5e20;transform:translateY(-1px)}
   
-  /* SMALLER INFO MODAL TEXT */
   .extra{
     background:#f3f4f6;
     border-radius:8px;
     padding:6px 8px;
     margin-top:4px;
     color:var(--text);
-    font-size:0.65rem; /* Made even smaller */
+    font-size:0.65rem;
     line-height:1.2;
     transition:all 0.3s ease;
   }
   body.dark .extra{background:#475569;color:#cbd5e1}
   
   .extra > div{
-    margin:1px 0; /* Minimal spacing */
-    font-size:0.6rem; /* Extra small for individual lines */
+    margin:1px 0;
+    font-size:0.6rem;
   }
 
-  /* PAGE NAVIGATION - IMPROVED DARK MODE */
   .pager-row{margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
   .btn{
     border:1px solid var(--ring);
@@ -164,14 +158,12 @@
              transition:all 0.3s ease}
   body.dark .page-info{background:#334155;border-color:#64748b;color:#e2e8f0}
 
-  /* quick buttons */
   .quick{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
   .chip{padding:8px 12px;border-radius:999px;color:#fff;font-weight:800;box-shadow:var(--shadow);cursor:pointer;
         transition:all 0.2s ease}
   .chip:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,0.2)}
   .chip.red{background:var(--brand)} .chip.green{background:var(--green)} .chip.blue{background:var(--blue)}
 
-  /* CART DESIGN */
   .pay-wrap{display:flex;flex-direction:column;gap:12px}
   .cart-list{display:flex;flex-direction:column;gap:8px;max-height:400px;overflow:auto}
   
@@ -308,7 +300,6 @@
   }
   .nego-ok:hover{background:var(--green);transform:translateY(-1px)}
 
-  /* PAYMENT STAGES */
   .payment-stage{
     display:none;
   }
@@ -400,7 +391,6 @@
     font-weight:700;
   }
   
-  /* ENHANCED LOADING STATE FOR BUTTONS */
   .btn-loading{
     opacity:0.8;
     pointer-events:none;
@@ -445,7 +435,6 @@
 
   .hidden{display:none !important}
   
-  /* responsive */
   @media(max-width:768px){
     .payment-actions{
       flex-direction:column;
@@ -467,7 +456,6 @@
     }
   }
 
-  /* MODAL STYLES */
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:50;
          backdrop-filter:blur(4px)}
   .modal.show{display:flex}
@@ -513,7 +501,6 @@
   
   .row{display:flex;gap:10px;flex-wrap:wrap}
 
-  /* REPORT STYLES - IMPROVED DARK MODE */
   .section-title{font-weight:900;margin:6px 0 10px;color:var(--text);transition:color 0.3s ease}
   .report-card{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:14px;margin-top:10px;
                transition:all 0.3s ease}
@@ -530,23 +517,19 @@
                       transition:color 0.3s ease}
   .td-right{text-align:right}
   
-  /* PERFORMANCE OPTIMIZATIONS */
   .p-img{
     background:#e5e7eb;
-    transition:none; /* Remove transitions for faster rendering */
+    transition:none;
   }
   
-  /* Reduce repaints */
   *{
     box-sizing:border-box;
   }
   
-  /* GPU acceleration for smooth animations */
   .btn, .tab, .chip{
     will-change:transform;
   }
   
-  /* Preload critical fonts */
   @font-display: swap;
 </style>
 </head>
@@ -749,7 +732,6 @@
 
 <script>
 /* ================== BACKEND URL - FIXED ================== */
-// URL Google Apps Script Web App yang sudah benar
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJVXMVdiDZ0VLQSypJtr2dy1gziXMdBMmNbrpUuzcxVXTN9_cxJ3iUvbSPum67jFagzw/exec';
 
 /* ================== STATE ================== */
@@ -969,9 +951,8 @@ document.getElementById('btnProceed').onclick = () => {
 
 document.getElementById('btnBackToReview').onclick = () => showStage('review');
 
-// ENHANCED: Better button responsiveness and loading state
 document.getElementById('btnConfirmSave').onclick = async () => {
-  if(isProcessing) return; // Prevent double-click
+  if(isProcessing) return;
   await simpanTransaksi();
 };
 
@@ -1065,13 +1046,11 @@ btnHome.onclick = ()=>{
 
 costToggle.onchange = ()=>{ setPref(PREF_SHOWCOST, costToggle.checked); renderProduk(); };
 
-// OPTIMIZED: Use DocumentFragment for better performance
 function renderProduk(){
   const showCost = !!costToggle.checked;
   const start=(currentPage-1)*itemsPerPage;
   const list=filteredProduk.slice(start,start+itemsPerPage);
   
-  // Show loading for better UX
   if(list.length === 0 && filteredProduk.length > 0) {
     grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">Tidak ada produk di halaman ini</div>';
     return;
@@ -1113,7 +1092,6 @@ function renderProduk(){
   grid.innerHTML = '';
   grid.appendChild(fragment);
   
-  // Event delegation for better performance
   grid.onclick = (e) => {
     if(e.target.classList.contains('add-btn')){
       e.target.style.transform = 'scale(0.95)';
@@ -1144,7 +1122,6 @@ function renderPager(){
 prevBtn.onclick = ()=>{ if(currentPage>1){ currentPage--; renderProduk(); renderPager(); } };
 nextBtn.onclick = ()=>{ const tp=Math.ceil(filteredProduk.length/itemsPerPage); if(currentPage<tp){ currentPage++; renderProduk(); renderPager(); } };
 
-// DEBOUNCED SEARCH for better performance
 let searchTimeout;
 searchBox.oninput = ()=>{
   clearTimeout(searchTimeout);
@@ -1264,7 +1241,6 @@ window.applyNego = (id) => {
       item.hargaAkhirSatuan = Math.max(0, newPrice);
       renderCart();
       
-      // Hide nego controls
       negoInput.classList.remove('show');
       document.getElementById('ok_' + id).classList.remove('show');
     }
@@ -1279,7 +1255,7 @@ document.querySelectorAll('input[name="paymethod"]').forEach(r=>{
   };
 });
 
-/* ================== SAVE TRANSACTION - ENHANCED ================== */
+/* ================== SAVE TRANSACTION ================== */
 async function simpanTransaksi(){
   if(isProcessing) return;
   if(!keranjang.length) return alert('Keranjang kosong.');
@@ -1287,7 +1263,6 @@ async function simpanTransaksi(){
   isProcessing = true;
   const confirmBtn = document.getElementById('btnConfirmSave');
   
-  // Enhanced loading state
   confirmBtn.classList.add('btn-loading');
   confirmBtn.textContent = 'Menyimpan...';
   confirmBtn.disabled = true;
@@ -1328,14 +1303,12 @@ async function simpanTransaksi(){
     
     alert(`✅ Transaksi berhasil disimpan!\nID: ${res.id}\nTotal: ${rupiah(calcTotals().grand)}`);
     
-    // Refresh reports if on laporan tab
     if (tabLaporan.classList.contains('active')) muatLaporan();
     
   }catch(e){
     console.error('Transaction save error:', e);
     alert('Error menyimpan transaksi: ' + e.message);
     
-    // Reset button state on error
     confirmBtn.classList.remove('btn-loading');
     confirmBtn.textContent = 'KONFIRMASI & SIMPAN';
     confirmBtn.disabled = false;
@@ -1357,16 +1330,4 @@ function cetakStruk(transactionId){
   const win = window.open('', '_blank', 'width=380,height=600');
   
   const rows = keranjang.map(i=>{
-    const nama = i.produk?.nama || i.nama;
-    const varian = i.produk?.variasi ? ` (${i.produk.variasi})` : '';
-    const line1 = `${nama}${varian}`;
-    const line2 = `${i.qty} x ${rupiah(i.hargaAkhirSatuan)}  =  ${rupiah(i.qty*i.hargaAkhirSatuan)}`;
-    return `<div class="ln"><div>${line1}</div><div class="sub">${line2}</div></div>`;
-  }).join('');
-
-  win.document.write(`
-    <html><head><meta charset="utf-8">
-    <title>Struk Pembayaran - ${transactionId}</title>
-    <style>
-      @page{ size:58mm auto; margin:0 }
-      body{ font:12px/
+    const nama = i.produk?.nama
