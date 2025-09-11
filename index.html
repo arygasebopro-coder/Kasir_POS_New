@@ -4,7 +4,6 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Kasir Toko Tanaman</title>
-
 <style>
   :root{
     --brand:#c62828; --brand-700:#ad2222;
@@ -27,14 +26,10 @@
   .tab{padding:14px;border-radius:999px;background:#ececec;color:#6b7280;font-weight:800;text-align:center;cursor:pointer}
   .tab.active{background:linear-gradient(180deg,var(--brand),var(--brand-700));color:#fff}
 
-  .quick{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 14px}
-  .chip{padding:8px 12px;border-radius:999px;color:#fff;font-weight:800;box-shadow:var(--shadow);cursor:pointer}
-  .chip.red{background:var(--brand)} .chip.green{background:var(--green)} .chip.blue{background:var(--blue)}
-
   .search{width:100%;border:1px solid var(--ring);border-radius:12px;padding:10px 12px;outline:none}
   .toolbar{display:grid;grid-template-columns:1fr;gap:10px;margin:8px 0 14px}
 
-  /* produk 2 kolom */
+  /* produk 2-3 kolom */
   .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   @media(min-width:760px){ .grid{grid-template-columns:repeat(3,minmax(0,1fr))} }
   .p-card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
@@ -46,7 +41,7 @@
   .p-actions{display:flex;gap:8px;margin-top:6px}
   .add-btn{flex:1;border:none;border-radius:12px;padding:10px;background:#2e7d32;color:#fff;font-weight:800;cursor:pointer}
 
-  /* pager di bawah grid */
+  /* pager */
   .pager-row{margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
   .btn{border:1px solid var(--ring);background:#fff;border-radius:12px;padding:9px 12px;cursor:pointer}
   .btn[disabled]{opacity:.5;cursor:not-allowed}
@@ -54,6 +49,11 @@
   .btn-blue{background:var(--blue);color:#fff;border:none;font-weight:900}
   .btn-green{background:var(--green);color:#fff;border:none;font-weight:900}
   .page-info{color:var(--muted);font-weight:700;border:1px solid var(--ring);padding:8px 12px;border-radius:12px}
+
+  /* quick buttons (dipindah ke atas pembayaran) */
+  .quick{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+  .chip{padding:8px 12px;border-radius:999px;color:#fff;font-weight:800;box-shadow:var(--shadow);cursor:pointer}
+  .chip.red{background:var(--brand)} .chip.green{background:var(--green)} .chip.blue{background:var(--blue)}
 
   /* panel pembayaran */
   .pay-wrap{display:flex;flex-direction:column;gap:12px}
@@ -86,7 +86,6 @@
   .table{width:100%;border-collapse:collapse}
   .table th,.table td{padding:8px;border-bottom:1px dashed var(--ring);text-align:left}
   .td-right{text-align:right}
-  .btn-x{background:#ef4444;color:#fff;border:none;border-radius:10px;padding:6px 10px;font-weight:800;cursor:pointer}
 
   /* modal */
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:50}
@@ -123,12 +122,6 @@
       <div id="tabLaporan" class="tab">Laporan</div>
     </div>
 
-    <div class="quick">
-      <div id="qaMember" class="chip red">+ Member</div>
-      <div id="qaItem"   class="chip green">+ Item</div>
-      <div id="qaDiskon" class="chip blue">Diskon</div>
-    </div>
-
     <!-- POS -->
     <div id="posPage" class="card">
       <div class="toolbar">
@@ -146,8 +139,15 @@
         <div class="page-info" id="pageInfo">Halaman 1</div>
       </div>
 
+      <!-- Quick buttons DIPINDAH ke atas pembayaran -->
+      <div class="quick" id="quickBar">
+        <div id="qaMember" class="chip red">+ Member</div>
+        <div id="qaItem"   class="chip green">+ Item</div>
+        <div id="qaDiskon" class="chip blue">Diskon</div>
+      </div>
+
       <!-- Panel Pembayaran -->
-      <div class="card" style="margin-top:12px">
+      <div class="card" style="margin-top:4px">
         <div class="pay-wrap">
           <div style="font-weight:900">Keranjang</div>
           <div id="cartList" class="cart-list"></div>
@@ -238,17 +238,15 @@
   </div>
 </div>
 
+<!-- DISKON: sederhana – 1 tombol "Terapkan Diskon" -->
 <div id="modalDiskon" class="modal">
   <div class="modal-card">
     <div class="modal-title">Aktifkan Diskon Member</div>
     <div class="row">
-      <input id="d_hp" class="input" placeholder="Nomor HP Member">
+      <input id="d_hp" class="input" inputmode="numeric" placeholder="Nomor HP (boleh 0/62)">
     </div>
-    <div class="muted" style="margin:8px 0">Jika valid, harga item akan memakai <b>Harga Member</b> dari sheet Produk.</div>
-    <div class="row">
-      <button class="btn" onclick="closeModal('modalDiskon')">Tutup</button>
-      <button class="btn-blue" onclick="activateMember()">Cek & Aktifkan</button>
-      <button id="btnNonMember" class="btn" onclick="deactivateMember()" style="margin-left:auto">Non-aktifkan</button>
+    <div class="row" style="margin-top:10px">
+      <button class="btn-blue" style="margin-left:auto" onclick="applyMemberDiscount()">Terapkan Diskon</button>
     </div>
   </div>
 </div>
@@ -259,13 +257,12 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJVXMVdiDZ0VLQSypJt
 
 /* ================== STATE ================== */
 let currentUser = null;
-let semuaProduk = [];     // {id,nama,variasi,harga,hargaMember,foto}
+let semuaProduk = [];
 let filteredProduk = [];
-let keranjang = [];       // {id, produk, qty, hargaAkhirSatuan}
+let keranjang = [];
 let currentPage = 1;
-const itemsPerPage = 8;   // 2 kol x 4 baris
+const itemsPerPage = 8;
 
-// membership
 let memberActive = false;
 let memberNama = '';
 
@@ -349,7 +346,6 @@ const btnCancelConfirm = document.getElementById('btnCancelConfirm');
 const btnBackTop  = document.getElementById('btnBackToTop');
 const nonCashSel  = document.getElementById('nonCashDetail');
 
-/* ambil & render produk */
 async function initPOS(){
   if(!semuaProduk.length){
     const res = await getData('getProduk');
@@ -406,7 +402,7 @@ searchBox.oninput = ()=>{
 };
 btnBackTop.onclick = ()=> window.scrollTo({ top: grid.offsetTop - 60, behavior:'smooth' });
 
-/* hitung total & savings */
+/* totals */
 function calcTotals(){
   let count=0,total=0,saving=0;
   keranjang.forEach(k=>{
@@ -418,7 +414,6 @@ function calcTotals(){
   });
   return {count,total,saving,grand: total};
 }
-
 function renderCart(){
   cartList.innerHTML = keranjang.length ? keranjang.map((it)=>{
     const total = it.qty*it.hargaAkhirSatuan;
@@ -504,7 +499,7 @@ async function simpanTransaksi(shouldPrint){
   if (tabLaporan.classList.contains('active')) muatLaporan();
 }
 
-/* struk 58mm – tanpa diskon total (karena harga sudah harga member per item) */
+/* struk 58mm */
 function cetakStruk(id, p){
   const total = p.items.reduce((s,i)=> s + i.qty*i.hargaAkhirSatuan, 0);
   const tgl = new Date();
@@ -543,30 +538,52 @@ function cetakStruk(id, p){
   win.document.close();
 }
 
-/* ================== MEMBER PRICING ================== */
+/* ================== MEMBER: 1 tombol + dukung 0/62 ================== */
+function buildPhoneVariants(raw){
+  // ambil digit saja
+  let d = String(raw||'').replace(/\D+/g,'');
+  const vs = new Set();
+  if(!d) return [];
+  vs.add(d);
+  if(d.startsWith('0')) vs.add(d.slice(1));            // 081234 -> 81234
+  if(d.startsWith('62')) vs.add(d.slice(2));           // 62812.. -> 812..
+  if(!d.startsWith('0')) vs.add('0'+d);                // 812..   -> 0812..
+  const no0 = d.startsWith('0') ? d.slice(1) : d;
+  vs.add('62'+no0);                                    // 0812.. -> 62812..
+  return Array.from(vs);
+}
+
+async function applyMemberDiscount(){
+  const raw = document.getElementById('d_hp').value;
+  const candidates = buildPhoneVariants(raw);
+  let ok=false, name='';
+  for(const n of candidates){
+    try{
+      const r = await getData('cekMember',{ nomorHp:n });
+      if(r && r.success){ ok=true; name=r.nama||''; break; }
+    }catch(_) {}
+  }
+  closeModal('modalDiskon');
+  if(ok){
+    memberActive = true; memberNama = name;
+    repriceCartByMembership(); renderCart();
+    alert('Diskon member diterapkan'+(name?` untuk ${name}`:'')+'.');
+  }else{
+    memberActive = false; memberNama='';
+    repriceCartByMembership(); renderCart();
+    alert('Nomor tidak terdaftar.');
+  }
+}
+
 function repriceCartByMembership(){
   keranjang.forEach(k=>{
-    // hanya produk asli (bukan custom-)
     if(k.produk && k.produk.id){
       k.hargaAkhirSatuan = (memberActive && k.produk.hargaMember>0) ? k.produk.hargaMember : k.produk.harga;
     }
   });
 }
-async function activateMember(){
-  const hp = (document.getElementById('d_hp').value||'').trim();
-  if(!hp) return alert('Masukkan nomor HP member.');
-  const res = await getData('cekMember',{ nomorHp:hp });
-  if(res && res.success){
-    memberActive = true; memberNama = res.nama||'';
-    repriceCartByMembership(); renderCart(); closeModal('modalDiskon');
-    alert('Harga member diaktifkan '+(memberNama?('untuk '+memberNama):'')+'.');
-  }else{
-    alert('Member tidak ditemukan / tidak aktif.');
-  }
-}
-function deactivateMember(){ memberActive = false; memberNama=''; repriceCartByMembership(); renderCart(); closeModal('modalDiskon'); }
 
-/* ================== LAPORAN (layout lama + hapus per item utk Admin) ================== */
+/* ================== LAPORAN ================== */
 async function muatLaporan(){
   if(!currentUser) return;
   const loader = document.getElementById('reportLoader');
@@ -581,7 +598,6 @@ async function muatLaporan(){
     const totalKes = rs.reduce((s,r)=>s+(r.totalPenjualan||0),0);
     const totalTrx = rs.reduce((s,r)=>s+(r.jumlahTransaksi||0),0);
 
-    // Ringkasan per cabang
     let html = rs.map(r=>`
       <div class="report-card">
         <div class="section-title">Laporan Cabang: ${r.cabang}</div>
@@ -592,7 +608,6 @@ async function muatLaporan(){
       </div>
     `).join('');
 
-    // total keseluruhan
     html += `
       <div class="report-card">
         <div class="section-title">Total Keseluruhan (Semua Cabang)</div>
@@ -601,7 +616,6 @@ async function muatLaporan(){
       </div>
     `;
 
-    // detail per cabang (collapsible)
     const items = (det?.groupedTransactions)
       ? det.groupedTransactions
       : groupByCabang(det?.transactions||[]);
@@ -635,7 +649,7 @@ async function muatLaporan(){
                       <td class="td-right">${rupiah(i.hargaSatuan||0)}</td>
                       <td class="td-right">${rupiah(i.total||0)}</td>
                       ${currentUser.role==='Admin'
-                        ? `<td class="td-right"><button class="btn-x" onclick="batalkanItem(${i.row||0}, this)">X</button></td>`
+                        ? `<td class="td-right"><button class="btn" style="background:#ef4444;color:#fff;border:none;border-radius:10px;padding:6px 10px;font-weight:800" onclick="batalkanItem(${i.row||0}, this)">X</button></td>`
                         : ''
                       }
                     </tr>
@@ -653,7 +667,6 @@ async function muatLaporan(){
   }catch(e){
     loader.textContent='Gagal memuat laporan.';
   }
-
   function groupByCabang(arr){
     const m={}; arr.forEach(i=>{ const c=i.cabang||'Pusat'; (m[c]=m[c]||[]).push(i); }); return m;
   }
@@ -685,13 +698,24 @@ async function submitMember(){
   if(res && res.success){ alert('Member berhasil didaftarkan.'); closeModal('modalMember'); }
   else alert('Gagal mendaftarkan member.');
 }
+
+/* Tambah item manual – auto baca harga dari nama "(12345)" jika kolom harga kosong */
+function parseHargaFromName(nama){
+  const m = String(nama||'').match(/\((\d[\d\.]*)\)/); // ambil angka di dalam ( )
+  if(!m) return 0;
+  return Number(m[1].replace(/\./g,''));
+}
 function addItemManual(){
   const nama = (document.getElementById('i_nama').value||'').trim();
   let qty   = parseInt(document.getElementById('i_qty').value||'1',10);
-  const harga= Number(document.getElementById('i_harga').value||0);
+  let harga = Number(document.getElementById('i_harga').value||0);
   const varian=(document.getElementById('i_var').value||'').trim();
   if(!nama) return alert('Nama item kosong.');
   if(!(qty>0)) qty=1;
+  if(harga<=0){ // fallback: baca dari nama "…(30000)"
+    const h2 = parseHargaFromName(nama);
+    if(h2>0) harga = h2;
+  }
   const id = 'custom-'+Date.now();
   const prod = { id, nama, variasi:varian, harga, hargaMember:0, foto:'' };
   keranjang.push({ id, produk:prod, qty, hargaAkhirSatuan:harga });
