@@ -784,9 +784,9 @@ async function submitMember(){
 
 /* Tambah item manual – auto baca harga dari nama "(12345)" jika kolom harga kosong */
 function parseHargaFromName(nama){
-  const m = String(nama||'').match(/\((\d[\d\.]*))\)/);
-  if(!m) return 0;
-  return Number(m[1].replace(/\./g,''));
+  // Ambil angka di dalam tanda kurung, contoh: "Kurir (30.000)" -> 30000
+  const m = String(nama || '').match(/\((\d[\d\.]*)\)/);  // ← sudah benar
+  return m ? Number(m[1].replace(/\./g, '')) : 0;
 }
 function addItemManual(){
   const nama = (document.getElementById('i_nama').value||'').trim();
@@ -812,3 +812,4 @@ tryAutoLogin();
 </script>
 </body>
 </html>
+
