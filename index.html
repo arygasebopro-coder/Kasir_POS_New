@@ -69,6 +69,13 @@
   .confirm{border:1px dashed var(--ring);background:#fff9f9;border-radius:12px;padding:10px;display:none}
   .confirm.show{display:block}
 
+  /* Modal */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:50}
+  .modal.show{display:flex}
+  .modal-card{background:#fff;border-radius:16px;box-shadow:var(--shadow);width:min(440px,92%);padding:16px}
+  .modal-title{font-weight:900;margin-bottom:8px}
+  .input{width:100%;border:1px solid var(--ring);border-radius:10px;padding:10px 12px;outline:none}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
   .hidden{display:none !important}
 </style>
 </head>
@@ -128,7 +135,12 @@
 
           <div class="total-line">
             <div class="muted">Item: <b id="cartCount">0</b></div>
-            <div class="total-big">Total: <span id="cartTotal">Rp 0</span></div>
+            <div class="total-big">
+              <span id="memberSaveLine" class="hidden" style="margin-right:10px;color:#16a34a;font-weight:700">
+                Hemat Member: <span id="saveVal">Rp 0</span>
+              </span>
+              Total: <span id="cartTotal">Rp 0</span>
+            </div>
           </div>
 
           <div class="muted">Metode Pembayaran:</div>
@@ -176,6 +188,54 @@
   </div>
 </div>
 
+<!-- ====== MODALS ====== -->
+<div id="modalMember" class="modal">
+  <div class="modal-card">
+    <div class="modal-title">Daftarkan Member Baru</div>
+    <div class="row">
+      <input id="m_hp" class="input" placeholder="Nomor HP (wajib)">
+      <input id="m_nama" class="input" placeholder="Nama (opsional)">
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" onclick="closeModal('modalMember')">Tutup</button>
+      <button class="btn-primary" onclick="submitMember()">Daftarkan</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalItem" class="modal">
+  <div class="modal-card">
+    <div class="modal-title">Tambah Item Manual</div>
+    <div class="row">
+      <input id="i_nama" class="input" placeholder="Nama item">
+      <input id="i_var" class="input" placeholder="Variasi (opsional)">
+    </div>
+    <div class="row" style="margin-top:8px">
+      <input id="i_qty" class="input" type="number" min="1" value="1" style="max-width:120px" placeholder="Qty">
+      <input id="i_harga" class="input" type="number" min="0" step="100" value="0" placeholder="Harga satuan">
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" onclick="closeModal('modalItem')">Batal</button>
+      <button class="btn-green" onclick="addItemManual()">Tambah ke Keranjang</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalDiskon" class="modal">
+  <div class="modal-card">
+    <div class="modal-title">Aktifkan Diskon Member</div>
+    <div class="row">
+      <input id="d_hp" class="input" placeholder="Nomor HP Member">
+    </div>
+    <div class="muted" style="margin:8px 0">Jika valid, diskon <b>10%</b> akan diterapkan ke total belanja.</div>
+    <div class="row">
+      <button class="btn" onclick="closeModal('modalDiskon')">Tutup</button>
+      <button class="btn-blue" onclick="activateMember()">Cek & Aktifkan</button>
+      <button id="btnNonMember" class="btn" onclick="deactivateMember()" style="margin-left:auto">Non-aktifkan</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ================== BACKEND (JSONP) ================== */
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJVXMVdiDZ0VLQSypJtr2dy1gziXMdBMmNbrpUuzcxVXTN9_cxJ3iUvbSPum67jFagzw/exec';
@@ -186,7 +246,12 @@ let semuaProduk = [];
 let filteredProduk = [];
 let keranjang = [];
 let currentPage = 1;
-const itemsPerPage = 8; // 2 kolom x 4 baris
+const itemsPerPage = 8; // 2 kol x 4 baris
+
+// Member discount state
+let memberActive = false;
+let memberNama = '';
+const memberDisc = 10;
 
 /* ================== UTIL ================== */
 const rupiah = n => 'Rp ' + (Number(n||0)).toLocaleString('id-ID');
@@ -254,6 +319,8 @@ const prevBtn     = document.getElementById('prevBtn');
 const nextBtn     = document.getElementById('nextBtn');
 const cartList    = document.getElementById('cartList');
 const cartTotalEl = document.getElementById('cartTotal');
+const saveLine    = document.getElementById('memberSaveLine');
+const saveVal     = document.getElementById('saveVal');
 const cartCountEl = document.getElementById('cartCount');
 const btnClearCart= document.getElementById('btnClearCart');
 const btnProceed  = document.getElementById('btnProceed');
@@ -314,6 +381,12 @@ searchBox.oninput = ()=>{
 };
 btnBackTop.onclick = ()=> window.scrollTo({ top: grid.offsetTop - 60, behavior:'smooth' });
 
+function calcTotals(){
+  const count = keranjang.reduce((s,k)=>s+k.qty,0);
+  const total = keranjang.reduce((s,k)=>s+k.qty*k.hargaAkhirSatuan,0);
+  const discount = memberActive ? Math.round(total*memberDisc/100) : 0;
+  return {count,total,discount,grand: total-discount};
+}
 function renderCart(){
   // list
   cartList.innerHTML = keranjang.length ? keranjang.map((it,i)=>{
@@ -341,11 +414,17 @@ function renderCart(){
     `;
   }).join('') : `<div class="muted">Keranjang kosong.</div>`;
 
-  // total & tombol
-  const count = keranjang.reduce((s,k)=>s+k.qty,0);
-  const total = keranjang.reduce((s,k)=>s+k.qty*k.hargaAkhirSatuan,0);
-  cartCountEl.textContent = count;
-  cartTotalEl.textContent = rupiah(total);
+  // totals
+  const t = calcTotals();
+  cartCountEl.textContent = t.count;
+  if(memberActive){
+    saveLine.classList.remove('hidden');
+    saveVal.textContent = rupiah(t.discount);
+    cartTotalEl.textContent = rupiah(t.grand);
+  }else{
+    saveLine.classList.add('hidden');
+    cartTotalEl.textContent = rupiah(t.total);
+  }
 }
 window.toggleNego = (id,show)=>{
   const box = document.getElementById('nego_'+id);
@@ -419,9 +498,11 @@ async function simpanTransaksi(shouldPrint){
   if (tabLaporan.classList.contains('active')) muatLaporan();
 }
 
-/* Struk 58mm sederhana */
+/* Struk 58mm */
 function cetakStruk(id, p){
   const total = p.items.reduce((s,i)=> s + i.qty*i.hargaAkhirSatuan, 0);
+  const discount = memberActive ? Math.round(total*memberDisc/100) : 0;
+  const grand = total - discount;
   const tgl = new Date();
   const win = window.open('', '_blank', 'width=380,height=600');
   const rows = p.items.map(i=>{
@@ -450,7 +531,9 @@ function cetakStruk(id, p){
       <div>Metode: ${p.metodePembayaran}${p.detailMetode?(' - '+p.detailMetode):''}</div>
       <div class="ln"></div>
       ${rows}
-      <div class="tot">Total: ${rupiah(total)}</div>
+      <div class="tot">Subtotal: ${rupiah(total)}</div>
+      ${discount?`<div>Diskon Member (${memberDisc}%): -${rupiah(discount)}</div>`:''}
+      <div class="tot">Total: ${rupiah(grand)}</div>
       <div class="c" style="margin-top:10px">Terima kasih</div>
       <script>window.print();setTimeout(()=>window.close(),300);<\/script>
     </body></html>
@@ -514,10 +597,52 @@ async function muatLaporan(){
   function flattenGroup(d){ if(!d||!d.groupedTransactions) return []; return Object.values(d.groupedTransactions).flat(); }
 }
 
-/* ================== QUICK PLACEHOLDER ================== */
-document.getElementById('qaMember').onclick=()=>alert('Form "Daftarkan Member Baru" ditampilkan (fitur asli tetap).');
-document.getElementById('qaItem').onclick  =()=>alert('Form "Tambah Item Manual" ditampilkan (fitur asli tetap).');
-document.getElementById('qaDiskon').onclick=()=>alert('Terapkan Diskon Member (fitur asli tetap).');
+/* ================== MODAL LOGIC ================== */
+const openModal  = id => document.getElementById(id).classList.add('show');
+const closeModal = id => document.getElementById(id).classList.remove('show');
+
+document.getElementById('qaMember').onclick = ()=> openModal('modalMember');
+document.getElementById('qaItem').onclick   = ()=> openModal('modalItem');
+document.getElementById('qaDiskon').onclick = ()=> openModal('modalDiskon');
+
+async function submitMember(){
+  const hp = (document.getElementById('m_hp').value||'').trim();
+  const nama = (document.getElementById('m_nama').value||'').trim();
+  if(!hp) return alert('Nomor HP wajib diisi.');
+  const res = await postData('tambahMemberBaru',{ nomorHp:hp, nama });
+  if(res && res.success){ alert('Member berhasil didaftarkan.'); closeModal('modalMember'); }
+  else alert('Gagal mendaftarkan member.');
+}
+
+function addItemManual(){
+  const nama = (document.getElementById('i_nama').value||'').trim();
+  let qty   = parseInt(document.getElementById('i_qty').value||'1',10);
+  const harga= Number(document.getElementById('i_harga').value||0);
+  const varian=(document.getElementById('i_var').value||'').trim();
+  if(!nama) return alert('Nama item kosong.');
+  if(!(qty>0)) qty=1;
+  const id = 'custom-'+Date.now();
+  const prod = { id, nama, variasi:varian, harga, foto:'' };
+  keranjang.push({ id, produk:prod, qty, hargaAkhirSatuan:harga });
+  renderCart();
+  closeModal('modalItem');
+}
+
+async function activateMember(){
+  const hp = (document.getElementById('d_hp').value||'').trim();
+  if(!hp) return alert('Masukkan nomor HP member.');
+  const res = await getData('cekMember',{ nomorHp:hp });
+  if(res && res.success){
+    memberActive = true; memberNama = res.nama||'';
+    renderCart(); closeModal('modalDiskon');
+    alert('Diskon member diaktifkan '+(memberNama?('untuk '+memberNama):'')+'.');
+  }else{
+    alert('Member tidak ditemukan / tidak aktif.');
+  }
+}
+function deactivateMember(){
+  memberActive = false; memberNama=''; renderCart(); closeModal('modalDiskon');
+}
 
 /* ================== START ================== */
 tryAutoLogin();
