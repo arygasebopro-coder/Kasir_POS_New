@@ -64,6 +64,11 @@
   .total-line{display:flex;justify-content:space-between;align-items:center;gap:10px}
   .total-big{font-weight:900;font-size:1.05rem}
   .pay-actions{display:flex;gap:10px;flex-wrap:wrap}
+
+  /* konfirmasi simpan/cetak */
+  .confirm{border:1px dashed var(--ring);background:#fff9f9;border-radius:12px;padding:10px;display:none}
+  .confirm.show{display:block}
+
   .hidden{display:none !important}
 </style>
 </head>
@@ -106,7 +111,7 @@
 
       <div id="produkGrid" class="grid"></div>
 
-      <!-- Pager: di bawah grid, di atas pembayaran -->
+      <!-- Pager di bawah grid -->
       <div class="pager-row">
         <div style="display:flex;gap:10px">
           <button class="btn" id="prevBtn">« Sebelumnya</button>
@@ -115,7 +120,7 @@
         <div class="page-info" id="pageInfo">Halaman 1</div>
       </div>
 
-      <!-- PANEL PEMBAYARAN: SELALU TAMPIL -->
+      <!-- PANEL PEMBAYARAN -->
       <div class="card" style="margin-top:12px">
         <div class="pay-wrap">
           <div style="font-weight:900">Keranjang</div>
@@ -141,8 +146,23 @@
           <div class="pay-actions">
             <button id="btnBackToTop" class="btn">Kembali ke Produk</button>
             <button id="btnClearCart" class="btn">Kosongkan</button>
-            <button id="btnPrint" class="btn-primary">Simpan & Cetak Struk</button>
+            <!-- langkah 1 -->
+            <button id="btnProceed" class="btn-primary">Lanjut ke Pembayaran</button>
           </div>
+
+          <!-- langkah 2: pilihan simpan/cetak -->
+          <div id="confirmPay" class="confirm">
+            <div style="font-weight:800;margin-bottom:6px">Selesaikan Transaksi</div>
+            <div class="muted" style="margin-bottom:10px">
+              Pilih salah satu: Simpan & cetak struk, atau simpan tanpa cetak.
+            </div>
+            <div class="pay-actions">
+              <button id="btnSavePrint" class="btn-primary">Simpan & Cetak Struk</button>
+              <button id="btnSaveOnly"  class="btn-blue">Simpan Saja</button>
+              <button id="btnCancelConfirm" class="btn">Batal</button>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -236,7 +256,11 @@ const cartList    = document.getElementById('cartList');
 const cartTotalEl = document.getElementById('cartTotal');
 const cartCountEl = document.getElementById('cartCount');
 const btnClearCart= document.getElementById('btnClearCart');
-const btnPrint    = document.getElementById('btnPrint');
+const btnProceed  = document.getElementById('btnProceed');
+const confirmBox  = document.getElementById('confirmPay');
+const btnSavePrint= document.getElementById('btnSavePrint');
+const btnSaveOnly = document.getElementById('btnSaveOnly');
+const btnCancelConfirm = document.getElementById('btnCancelConfirm');
 const btnBackTop  = document.getElementById('btnBackToTop');
 const nonCashSel  = document.getElementById('nonCashDetail');
 
@@ -360,9 +384,18 @@ document.querySelectorAll('input[name="paymethod"]').forEach(r=>{
   };
 });
 
-/* ================== SIMPAN & CETAK ================== */
-btnPrint.onclick = async ()=>{
+/* ====== Langkah 1 -> tampilkan pilihan simpan/cetak ====== */
+btnProceed.onclick = ()=>{
   if(!keranjang.length) return alert('Keranjang kosong.');
+  confirmBox.classList.add('show');
+};
+btnCancelConfirm.onclick = ()=> confirmBox.classList.remove('show');
+
+/* ====== Simpan transaksi ====== */
+btnSavePrint.onclick = ()=> simpanTransaksi(true);
+btnSaveOnly.onclick  = ()=> simpanTransaksi(false);
+
+async function simpanTransaksi(shouldPrint){
   const isNon = document.querySelector('input[name="paymethod"][value="Non-Tunai"]').checked;
   const metode = isNon ? 'Non-Tunai' : 'Tunai';
   const det = isNon ? nonCashSel.value : '';
@@ -380,12 +413,13 @@ btnPrint.onclick = async ()=>{
   const res = await postData('simpanTransaksi', payload);
   if(!(res && res.success)) return alert('Gagal menyimpan transaksi.');
 
-  cetakStruk(res.id, payload);
+  if(shouldPrint) cetakStruk(res.id, payload);
   keranjang=[]; renderCart();
+  confirmBox.classList.remove('show');
   if (tabLaporan.classList.contains('active')) muatLaporan();
-};
+}
 
-/* Struk 58mm sederhana (tanpa nama toko) */
+/* Struk 58mm sederhana */
 function cetakStruk(id, p){
   const total = p.items.reduce((s,i)=> s + i.qty*i.hargaAkhirSatuan, 0);
   const tgl = new Date();
