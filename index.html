@@ -39,7 +39,7 @@
   /* TOPBAR USER INFO - PERKECIL UKURAN */
   #userInfo{
     font-weight:700;
-    font-size:0.8rem; /* Diperkecil dari default */
+    font-size:0.8rem;
     color:var(--muted);
   }
 
@@ -69,16 +69,17 @@
   .extra{background:#f3f4f6;border-radius:12px;padding:8px 10px;margin-top:6px;color:var(--text)}
   body.dark .extra{background:#111827}
 
-  /* pager */
+  /* PAGE NAVIGATION - PERBAIKI VISIBILITY DI DARK MODE */
   .pager-row{margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-  .btn{border:1px solid var(--ring);background:#fff;border-radius:12px;padding:9px 12px;cursor:pointer}
-  body.dark .btn{background:#0b1220}
+  .btn{border:1px solid var(--ring);background:var(--card);border-radius:12px;padding:9px 12px;cursor:pointer;color:var(--text)}
+  body.dark .btn{background:#1e293b;border-color:#475569;color:var(--text)}
   .btn[disabled]{opacity:.5;cursor:not-allowed}
   .btn-primary{background:var(--blue);color:#fff;border:none;font-weight:900;border-radius:12px;padding:12px 20px}
   .btn-green{background:var(--green-light);color:#fff;border:none;font-weight:900;border-radius:8px;padding:8px 16px}
   .btn-orange{background:var(--orange);color:#fff;border:none;font-weight:700;border-radius:8px;padding:6px 12px}
   .btn-red{background:#ef4444;color:#fff;border:none;font-weight:700;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
-  .page-info{color:var(--muted);font-weight:700;border:1px solid var(--ring);padding:8px 12px;border-radius:12px}
+  .page-info{color:var(--text);font-weight:700;border:1px solid var(--ring);padding:8px 12px;border-radius:12px;background:var(--card)}
+  body.dark .page-info{background:#1e293b;border-color:#475569;color:var(--text)}
 
   /* quick buttons */
   .quick{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
@@ -102,20 +103,20 @@
     display:flex;
     justify-content:space-between;
     align-items:flex-start;
-    margin-bottom:8px; /* Diperkecil dari 12px */
+    margin-bottom:8px;
   }
   
   .cart-info h4{
     margin:0;
-    font-size:0.9rem; /* Base size untuk nama produk */
+    font-size:0.9rem;
     font-weight:700;
     color:var(--text-light);
     line-height:1.2;
   }
   
   .cart-info p{
-    margin:2px 0 0 0; /* Diperkecil margin */
-    font-size:0.8rem; /* Diperkecil dari 0.9rem */
+    margin:2px 0 0 0;
+    font-size:0.8rem;
     color:var(--muted-light);
   }
   
@@ -124,59 +125,58 @@
     border:none;
     color:#fff;
     border-radius:50%;
-    width:20px; /* Diperkecil dari 28px */
-    height:20px; /* Diperkecil dari 28px */
+    width:20px;
+    height:20px;
     display:flex;
     align-items:center;
     justify-content:center;
     cursor:pointer;
     font-weight:700;
-    font-size:0.9rem; /* Diperkecil */
+    font-size:0.9rem;
   }
   
   .cart-controls{
     display:flex;
     align-items:center;
-    gap:6px; /* Diperkecil dari 8px */
+    gap:6px;
     flex-wrap:wrap;
   }
   
-  /* UKURAN BUTTON CONTROLS DIPERKECIL - SAMA DENGAN NAMA PRODUK */
   .qty-control{
     background:var(--green-light);
     border:none;
     color:#fff;
     border-radius:50%;
-    width:24px; /* Diperkecil dari 36px */
-    height:24px; /* Diperkecil dari 36px */
+    width:24px;
+    height:24px;
     display:flex;
     align-items:center;
     justify-content:center;
     cursor:pointer;
     font-weight:700;
-    font-size:0.9rem; /* Sama dengan nama produk */
+    font-size:0.9rem;
   }
   
   .qty-display{
     background:#444;
     color:#fff;
     border:none;
-    border-radius:6px; /* Diperkecil dari 8px */
-    width:40px; /* Diperkecil dari 60px */
-    height:24px; /* Diperkecil dari 36px */
+    border-radius:6px;
+    width:40px;
+    height:24px;
     text-align:center;
     font-weight:700;
-    font-size:0.8rem; /* Diperkecil */
+    font-size:0.8rem;
   }
   
   .nego-btn{
     background:var(--orange);
     color:#fff;
     border:none;
-    border-radius:6px; /* Diperkecil dari 8px */
-    padding:4px 8px; /* Diperkecil dari 8px 16px */
+    border-radius:6px;
+    padding:4px 8px;
     font-weight:700;
-    font-size:0.75rem; /* Diperkecil untuk sama dengan nama produk */
+    font-size:0.75rem;
     cursor:pointer;
   }
   
@@ -184,12 +184,12 @@
     background:#333;
     color:#fff;
     border:1px solid #555;
-    border-radius:6px; /* Diperkecil dari 8px */
-    padding:4px 6px; /* Diperkecil dari 8px */
-    width:70px; /* Diperkecil dari 100px */
-    height:24px; /* Sama dengan qty-display */
+    border-radius:6px;
+    padding:4px 6px;
+    width:70px;
+    height:24px;
     text-align:center;
-    font-size:0.75rem; /* Diperkecil */
+    font-size:0.75rem;
     display:none;
   }
   
@@ -201,10 +201,10 @@
     background:var(--green-light);
     color:#fff;
     border:none;
-    border-radius:6px; /* Diperkecil dari 8px */
-    padding:4px 8px; /* Diperkecil dari 8px 16px */
+    border-radius:6px;
+    padding:4px 8px;
     font-weight:700;
-    font-size:0.75rem; /* Diperkecil */
+    font-size:0.75rem;
     cursor:pointer;
     display:none;
   }
@@ -244,7 +244,6 @@
     font-size:1.3rem;
   }
   
-  /* PAYMENT DETAIL AREA */
   .payment-detail{
     background:var(--dark-bg);
     color:var(--text-light);
@@ -297,26 +296,6 @@
     font-weight:700;
   }
 
-  /* SUCCESS STAGE */
-  .success-card{
-    background:var(--green-light);
-    color:#fff;
-    border-radius:12px;
-    padding:20px;
-    text-align:center;
-    margin:16px 0;
-  }
-  
-  .success-card h3{
-    margin:0 0 8px 0;
-    font-size:1.5rem;
-  }
-  
-  .success-card p{
-    margin:4px 0;
-    font-size:1.1rem;
-  }
-
   .hidden{display:none !important}
   
   /* responsive */
@@ -331,18 +310,50 @@
       justify-content:center;
     }
     #userInfo{
-      font-size:0.7rem; /* Lebih kecil di mobile */
+      font-size:0.7rem;
     }
   }
 
-  /* Modal styles remain same... */
+  /* MODAL STYLES - PERBAIKI MODAL TAMBAH ITEM */
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:50}
   .modal.show{display:flex}
-  .modal-card{background:#fff;border-radius:16px;box-shadow:var(--shadow);width:min(440px,92%);padding:16px}
+  .modal-card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);width:min(440px,92%);padding:20px}
   body.dark .modal-card{background:#0b1220}
-  .modal-title{font-weight:900;margin-bottom:8px}
-  .input{width:100%;border:1px solid var(--ring);border-radius:10px;padding:10px 12px;outline:none;background:#fff;color:var(--text)}
-  body.dark .input{background:#0b1220}
+  .modal-title{font-weight:900;margin-bottom:16px;font-size:1.2rem}
+  
+  /* FORM GROUP UNTUK INPUT YANG JELAS */
+  .form-group{
+    margin-bottom:16px;
+  }
+  
+  .form-label{
+    display:block;
+    margin-bottom:6px;
+    font-weight:700;
+    font-size:0.9rem;
+    color:var(--text);
+  }
+  
+  .input{
+    width:100%;
+    border:1px solid var(--ring);
+    border-radius:10px;
+    padding:12px;
+    outline:none;
+    background:var(--card);
+    color:var(--text);
+    font-size:1rem;
+    box-sizing:border-box;
+  }
+  
+  body.dark .input{background:#0b1220;border-color:#374151}
+  
+  .input-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  
   .row{display:flex;gap:10px;flex-wrap:wrap}
 
   /* report styles remain same... */
@@ -371,7 +382,7 @@
   <!-- APP -->
   <div id="appContainer" class="hidden">
     <div class="topbar">
-      <div id="userInfo" style="font-weight:700;font-size:0.8rem;color:var(--muted)"></div>
+      <div id="userInfo"></div>
       <div style="display:flex;align-items:center;gap:8px">
         <button id="themeToggle" class="icon-btn" title="Mode siang/malam">🌙</button>
         <span id="roleBadge" class="pill">Kasir</span>
@@ -399,7 +410,7 @@
 
       <div id="produkGrid" class="grid"></div>
 
-      <!-- Pager -->
+      <!-- PAGER - IMPROVED VISIBILITY -->
       <div class="pager-row">
         <div style="display:flex;gap:10px">
           <button class="btn" id="prevBtn">« Sebelumnya</button>
@@ -415,7 +426,7 @@
         <div id="qaDiskon" class="chip blue">Diskon</div>
       </div>
 
-      <!-- PAYMENT SYSTEM - REVISED -->
+      <!-- PAYMENT SYSTEM -->
       <div class="card" style="margin-top:4px">
         
         <!-- STAGE 1: REVIEW -->
@@ -445,7 +456,7 @@
           </div>
         </div>
 
-        <!-- STAGE 2: PAYMENT - REVISED -->
+        <!-- STAGE 2: PAYMENT -->
         <div id="stagePayment" class="payment-stage">
           <div class="pay-wrap">
             <div style="font-weight:900;margin-bottom:12px">Detail Pembayaran</div>
@@ -479,7 +490,6 @@
               <button id="btnConfirmSave" class="btn-primary">KONFIRMASI & SIMPAN</button>
             </div>
             
-            <!-- SUCCESS BUTTONS - HIDDEN BY DEFAULT -->
             <div id="successButtons" class="payment-actions hidden">
               <button id="btnPrintReceipt" class="btn-primary">CETAK STRUK</button>
               <button id="btnFinish" class="btn-green">SELESAI</button>
@@ -499,33 +509,47 @@
   </div>
 </div>
 
-<!-- MODALS (same as before) -->
+<!-- MODALS -->
 <div id="modalMember" class="modal">
   <div class="modal-card">
     <div class="modal-title">Daftarkan Member Baru</div>
-    <div class="row">
-      <input id="m_hp" class="input" placeholder="Nomor HP (wajib)">
-      <input id="m_nama" class="input" placeholder="Nama (opsional)">
+    <div class="form-group">
+      <label class="form-label">Nomor HP (wajib)</label>
+      <input id="m_hp" class="input" placeholder="Masukkan nomor HP">
     </div>
-    <div class="row" style="margin-top:10px">
+    <div class="form-group">
+      <label class="form-label">Nama (opsional)</label>
+      <input id="m_nama" class="input" placeholder="Masukkan nama">
+    </div>
+    <div class="row" style="margin-top:20px">
       <button class="btn" onclick="closeModal('modalMember')">Tutup</button>
       <button class="btn-primary" onclick="submitMember()">Daftarkan</button>
     </div>
   </div>
 </div>
 
+<!-- MODAL TAMBAH ITEM - SIMPLIFIED -->
 <div id="modalItem" class="modal">
   <div class="modal-card">
     <div class="modal-title">Tambah Item Manual</div>
-    <div class="row">
-      <input id="i_nama" class="input" placeholder="Nama item">
-      <input id="i_var" class="input" placeholder="Variasi (opsional)">
+    
+    <div class="form-group">
+      <label class="form-label">Nama Item</label>
+      <input id="i_nama" class="input" placeholder="Masukkan nama item">
     </div>
-    <div class="row" style="margin-top:8px">
-      <input id="i_qty" class="input" type="number" min="1" value="1" style="max-width:120px" placeholder="Qty">
-      <input id="i_harga" class="input" type="number" min="0" step="100" value="0" placeholder="Harga satuan">
+    
+    <div class="input-row">
+      <div class="form-group">
+        <label class="form-label">💰 Harga Satuan (Rp)</label>
+        <input id="i_harga" class="input" type="number" min="0" step="100" value="0" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">📦 Jumlah (Qty)</label>
+        <input id="i_qty" class="input" type="number" min="1" value="1" placeholder="1">
+      </div>
     </div>
-    <div class="row" style="margin-top:10px">
+    
+    <div class="row" style="margin-top:20px">
       <button class="btn" onclick="closeModal('modalItem')">Batal</button>
       <button class="btn-green" onclick="addItemManual()">Tambah ke Keranjang</button>
     </div>
@@ -535,10 +559,11 @@
 <div id="modalDiskon" class="modal">
   <div class="modal-card">
     <div class="modal-title">Aktifkan Diskon Member</div>
-    <div class="row">
+    <div class="form-group">
+      <label class="form-label">Nomor HP Member</label>
       <input id="d_hp" class="input" inputmode="numeric" placeholder="Nomor HP (boleh 0/62)">
     </div>
-    <div class="row" style="margin-top:10px">
+    <div class="row" style="margin-top:20px">
       <button class="btn-blue" style="margin-left:auto" onclick="applyMemberDiscount()">Terapkan Diskon</button>
     </div>
   </div>
@@ -559,8 +584,7 @@ const itemsPerPage = 8;
 let memberActive = false;
 let memberNama = '';
 
-// Payment stages
-let currentStage = 'review'; // 'review', 'payment'
+let currentStage = 'review';
 let lastTransactionId = null;
 
 /* Preferensi UI */
@@ -616,11 +640,16 @@ document.getElementById('btnLogout').onclick = ()=>{
   resetCart(); showLogin(); 
 };
 function showLogin(){ loginPage.classList.remove('hidden'); appContainer.classList.add('hidden'); }
+
+// REVISED: Hapus contoh text, tampilkan info user yang sebenarnya
 function afterLoginUI(){
   loginPage.classList.add('hidden'); appContainer.classList.remove('hidden');
-  document.getElementById('userInfo').textContent =
-    (currentUser.role==='Admin'?'Admin':'Kasir') + ': ' + currentUser.email + ' | Cabang: ' + currentUser.cabang;
+  
+  // Tampilkan info user tanpa contoh text
+  const roleText = currentUser.role === 'Admin' ? 'Admin' : 'Kasir';
+  document.getElementById('userInfo').textContent = `${roleText}: ${currentUser.email} | Cabang: ${currentUser.cabang}`;
   document.getElementById('roleBadge').textContent = currentUser.role;
+  
   initPOS();
   if (document.getElementById('tabLaporan').classList.contains('active')) muatLaporan();
 }
@@ -641,14 +670,13 @@ const laporanPage = document.getElementById('laporanPage');
 tabKasir.onclick   = ()=>{ tabKasir.classList.add('active'); tabLaporan.classList.remove('active'); posPage.classList.remove('hidden'); laporanPage.classList.add('hidden'); };
 tabLaporan.onclick = ()=>{ tabKasir.classList.remove('active'); tabLaporan.classList.add('active'); posPage.classList.add('hidden'); laporanPage.classList.remove('hidden'); muatLaporan(); };
 
-/* ================== PAYMENT STAGES - REVISED ================== */
+/* ================== PAYMENT STAGES ================== */
 function showStage(stage) {
   document.querySelectorAll('.payment-stage').forEach(s => s.classList.remove('active'));
   document.getElementById('stage' + stage.charAt(0).toUpperCase() + stage.slice(1)).classList.add('active');
   currentStage = stage;
 }
 
-// Stage navigation
 document.getElementById('btnProceed').onclick = () => {
   if(!keranjang.length) return alert('Keranjang kosong.');
   updatePaymentTotal();
@@ -656,8 +684,6 @@ document.getElementById('btnProceed').onclick = () => {
 };
 
 document.getElementById('btnBackToReview').onclick = () => showStage('review');
-
-// REVISED: Combine confirm and save into one action
 document.getElementById('btnConfirmSave').onclick = () => simpanTransaksi();
 
 document.getElementById('btnPrintReceipt').onclick = () => {
@@ -682,7 +708,6 @@ function resetCart() {
   currentStage = 'review';
   lastTransactionId = null;
   
-  // Hide success buttons
   document.getElementById('successButtons').classList.add('hidden');
   document.getElementById('btnConfirmSave').classList.remove('hidden');
   
@@ -804,7 +829,6 @@ function calcTotals(){
   return {count,total,saving,grand: total};
 }
 
-// RENDER CART - With smaller buttons matching product name size
 function renderCart(){
   if(keranjang.length === 0) {
     cartList.innerHTML = '<div style="color:#999;text-align:center;padding:20px">Keranjang kosong</div>';
@@ -851,7 +875,6 @@ function renderCart(){
   }
 }
 
-// Cart operations
 window.chgQty = (id, delta) => {
   const item = keranjang.find(k => k.id === id);
   if(!item) return;
@@ -891,7 +914,6 @@ window.toggleNego = (id) => {
 
 window.applyNego = (id) => {
   const negoInput = document.getElementById('nego_' + id);
-  const okBtn = document.getElementById('ok_' + id);
   
   if(negoInput) {
     const newPrice = Number(negoInput.value) || 0;
@@ -911,7 +933,7 @@ document.querySelectorAll('input[name="paymethod"]').forEach(r=>{
   };
 });
 
-/* ================== SAVE TRANSACTION - REVISED ================== */
+/* ================== SAVE TRANSACTION ================== */
 async function simpanTransaksi(){
   if(!keranjang.length) return alert('Keranjang kosong.');
   
@@ -938,10 +960,8 @@ async function simpanTransaksi(){
     const res = await postData('simpanTransaksi', payload);
     if(!(res && res.success)) return alert('Gagal menyimpan transaksi.');
 
-    // Success - show success buttons
     lastTransactionId = res.id;
     
-    // Hide confirm button and show success buttons
     document.getElementById('btnConfirmSave').classList.add('hidden');
     document.getElementById('successButtons').classList.remove('hidden');
     
@@ -1201,25 +1221,26 @@ function parseHargaFromName(nama){
   return Number(m[1].replace(/\./g,''));
 }
 
+// REVISED: Simplified manual item addition
 function addItemManual(){
   const nama = (document.getElementById('i_nama').value||'').trim();
   let qty   = parseInt(document.getElementById('i_qty').value||'1',10);
   let harga = Number(document.getElementById('i_harga').value||0);
-  const varian=(document.getElementById('i_var').value||'').trim();
   
-  if(!nama) return alert('Nama item kosong.');
-  if(!(qty>0)) qty=1;
-  
-  if(harga<=0){
-    const h2 = parseHargaFromName(nama);
-    if(h2>0) harga = h2;
-  }
+  if(!nama) return alert('Nama item tidak boleh kosong.');
+  if(!(qty>0)) return alert('Jumlah harus lebih dari 0.');
+  if(harga<=0) return alert('Harga harus lebih dari 0.');
   
   const id = 'custom-'+Date.now();
-  const prod = { id, nama, variasi:varian, harga, hargaMember:0, foto:'' };
+  const prod = { id, nama, variasi:'', harga, hargaMember:0, foto:'' };
   keranjang.push({ id, produk:prod, qty, hargaAkhirSatuan:harga });
   renderCart();
   closeModal('modalItem');
+  
+  // Reset form
+  document.getElementById('i_nama').value = '';
+  document.getElementById('i_qty').value = '1';
+  document.getElementById('i_harga').value = '0';
 }
 
 /* ================== START ================== */
