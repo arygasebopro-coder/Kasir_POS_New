@@ -46,7 +46,6 @@
   .chip.red{   background:var(--brand) } .chip.green{ background:var(--accent-green) } .chip.blue{  background:var(--accent-blue) }
   .chip:active{ transform:translateY(1px) }
 
-  /* toolbar atas: hanya pencarian */
   .toolbar{ display:grid; grid-template-columns:1fr; gap:10px; align-items:center; margin:10px 0;}
   .search{ width:100%; border:1px solid var(--ring); border-radius:12px; padding:10px 12px; outline:none; }
 
@@ -67,6 +66,7 @@
   .total-big{ font-weight:900; font-size:1.05rem }
   .pay-actions{ display:flex; gap:10px; flex-wrap:wrap }
   .btn{ padding:10px 12px; border-radius:12px; border:1px solid var(--ring); background:#fff; cursor:pointer; }
+  .btn[disabled]{ opacity:.5; cursor:not-allowed }
   .btn-primary{ background:linear-gradient(180deg, var(--brand), var(--brand-700)); color:#fff; border:none; font-weight:900; }
   .btn-green{ background:var(--accent-green); color:#fff; border:none; font-weight:900; }
   .btn-blue{ background:var(--accent-blue); color:#fff; border:none; font-weight:900; }
@@ -114,7 +114,6 @@
 
     <!-- ============ POS PAGE ============ -->
     <div id="posPage" class="card">
-      <!-- Search di atas -->
       <div class="toolbar">
         <input id="searchBox" class="search" placeholder="Cari tanaman..." />
       </div>
@@ -122,17 +121,17 @@
       <!-- Produk -->
       <div id="produkGrid" class="grid"></div>
 
-      <!-- PANEL PEMBAYARAN (selalu di bawah daftar produk) -->
-      <div id="payPanel" class="card hidden" style="margin-top:12px">
+      <!-- PANEL PEMBAYARAN: SELALU TERLIHAT -->
+      <div id="payPanel" class="card" style="margin-top:12px">
         <div class="pay-panel">
           <div>
             <div style="color:var(--muted); font-weight:700">Keranjang</div>
             <div class="total-big">Item: <span id="cartCount">0</span> • Total: <span id="cartTotal">Rp 0</span></div>
           </div>
           <div class="pay-actions">
-            <button id="btnClearCart" class="btn">Kosongkan</button>
-            <button id="payNonCash" class="btn-blue">Bayar Non-Tunai</button>
-            <button id="payCash" class="btn-green">Bayar Tunai</button>
+            <button id="btnClearCart" class="btn" disabled>Kosongkan</button>
+            <button id="payNonCash" class="btn-blue" disabled>Bayar Non-Tunai</button>
+            <button id="payCash" class="btn-green" disabled>Bayar Tunai</button>
           </div>
         </div>
       </div>
@@ -234,9 +233,11 @@ const searchBox = document.getElementById('searchBox');
 const pageInfo = document.getElementById('pageInfo');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
-const payPanel = document.getElementById('payPanel');
 const cartTotalEl = document.getElementById('cartTotal');
 const cartCountEl = document.getElementById('cartCount');
+const btnClearCart = document.getElementById('btnClearCart');
+const btnPayNonCash = document.getElementById('payNonCash');
+const btnPayCash = document.getElementById('payCash');
 
 async function initPOS(){
   if(!semuaProduk.length){
@@ -254,7 +255,7 @@ async function initPOS(){
   currentPage = 1;
   renderProduk();
   renderPager();
-  renderPayPanel();
+  renderPayPanel(); // tampil sejak awal (disabled saat kosong)
 }
 
 function renderProduk(){
@@ -310,13 +311,13 @@ searchBox.oninput = ()=>{
 function renderPayPanel(){
   const count = keranjang.reduce((s,it)=> s+it.qty, 0);
   const total = keranjang.reduce((s,it)=> s + (it.qty*it.hargaAkhirSatuan), 0);
-  if(count>0){
-    cartCountEl.textContent = count;
-    cartTotalEl.textContent = rupiah(total);
-    payPanel.classList.remove('hidden');
-  }else{
-    payPanel.classList.add('hidden');
-  }
+  cartCountEl.textContent = count;
+  cartTotalEl.textContent = rupiah(total);
+  // enable/disable
+  const disabled = count===0;
+  btnClearCart.disabled = disabled;
+  btnPayNonCash.disabled = disabled;
+  btnPayCash.disabled = disabled;
 }
 
 /* Pembayaran */
@@ -345,9 +346,9 @@ async function checkout(metode){
     alert('Gagal menyimpan transaksi.');
   }
 }
-document.getElementById('payCash').onclick = ()=> checkout('Tunai');
-document.getElementById('payNonCash').onclick = ()=> checkout('Non-Tunai');
-document.getElementById('btnClearCart').onclick = ()=>{ if(confirm('Kosongkan keranjang?')){ keranjang=[]; renderPayPanel(); } };
+btnPayCash.onclick    = ()=> checkout('Tunai');
+btnPayNonCash.onclick = ()=> checkout('Non-Tunai');
+btnClearCart.onclick  = ()=>{ if(confirm('Kosongkan keranjang?')){ keranjang=[]; renderPayPanel(); } };
 
 /* ====== LAPORAN ====== */
 async function muatLaporan(){
