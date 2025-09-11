@@ -76,33 +76,193 @@
   .chip{padding:8px 12px;border-radius:999px;color:#fff;font-weight:800;box-shadow:var(--shadow);cursor:pointer}
   .chip.red{background:var(--brand)} .chip.green{background:var(--green)} .chip.blue{background:var(--blue)}
 
-  /* =========================
-     PANEL PEMBAYARAN — COMPACT
-     ========================= */
+  /* panel pembayaran - IMPROVED FOR MOBILE */
   .pay-wrap{display:flex;flex-direction:column;gap:12px}
   .cart-list{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow:auto}
+  
+  /* MINIMALIST CART ROW - MOBILE OPTIMIZED */
   .cart-row{
-    display:grid;grid-template-columns:1fr auto;gap:8px;
-    border:1px dashed #f59e0b;border-radius:12px;
-    padding:8px 10px;background:#fff7ed;
+    border:1px solid var(--ring);
+    border-radius:8px;
+    padding:8px;
+    background:var(--card);
   }
-  body.dark .cart-row{background:#2b1a00;border-color:#f59e0b99}
-  .cart-left{display:flex;flex-direction:column;gap:2px}
-  .cart-title{font-weight:700;font-size:.92rem;line-height:1.2}
-  .muted{color:var(--muted);font-size:.78rem}
-  .cart-controls{display:flex;align-items:center;gap:6px}
-  .qty{width:36px;text-align:center;border:1px solid var(--ring);border-radius:10px;padding:4px;height:28px;background:#fff;color:var(--text)}
-  body.dark .qty{background:#0b1220}
-  .circle{width:28px;height:28px;border-radius:50%;border:1px solid var(--ring);display:grid;place-items:center;background:#fff;cursor:pointer}
-  body.dark .circle{background:#0b1220}
-  .x-remove{background:#fee2e2;border:none;color:#b91c1c;width:28px;height:28px;border-radius:50%;font-weight:900;cursor:pointer}
-  .nego-toggle{border:1px dashed #f59e0b;background:#fff7ed;color:#b45309;border-radius:10px;padding:4px 8px;font-weight:700;cursor:pointer;align-self:flex-start;margin-top:4px}
+  
+  /* Mobile-first approach */
+  .cart-main{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:8px;
+    margin-bottom:6px;
+  }
+  
+  .cart-info{
+    flex:1;
+    min-width:0; /* Allow text truncation */
+  }
+  
+  .cart-name{
+    font-weight:700;
+    font-size:0.9rem;
+    line-height:1.2;
+    margin-bottom:2px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  
+  .cart-price{
+    color:var(--muted);
+    font-size:0.8rem;
+    line-height:1.2;
+  }
+  
+  .cart-controls-mobile{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    flex-shrink:0;
+  }
+  
+  .qty-mobile{
+    width:35px;
+    height:28px;
+    text-align:center;
+    border:1px solid var(--ring);
+    border-radius:6px;
+    padding:2px;
+    background:var(--card);
+    color:var(--text);
+    font-size:0.85rem;
+  }
+  
+  .btn-mobile{
+    width:28px;
+    height:28px;
+    border-radius:6px;
+    border:1px solid var(--ring);
+    background:var(--card);
+    color:var(--text);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:0.8rem;
+    font-weight:700;
+  }
+  
+  .btn-remove-mobile{
+    background:#fee2e2;
+    border:1px solid #fca5a5;
+    color:#dc2626;
+    width:28px;
+    height:28px;
+  }
+  
+  /* Nego section - more compact */
+  .nego-toggle{
+    font-size:0.75rem;
+    padding:4px 8px;
+    border:1px dashed #f59e0b;
+    background:#fff7ed;
+    color:#b45309;
+    border-radius:6px;
+    font-weight:600;
+    cursor:pointer;
+    margin-top:4px;
+    display:inline-block;
+  }
+  
   body.dark .nego-toggle{background:#3b2a00;color:#ffd08a}
-  .nego-box{display:none;margin-top:4px}
-  .nego-box.active{display:flex;gap:6px;align-items:center}
-  .total-line{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  
+  .nego-box{
+    display:none;
+    margin-top:6px;
+    gap:4px;
+    align-items:center;
+  }
+  
+  .nego-box.active{display:flex}
+  
+  .nego-box input{
+    width:80px;
+    padding:4px 6px;
+    border:1px solid var(--ring);
+    border-radius:4px;
+    font-size:0.8rem;
+  }
+  
+  .nego-box button{
+    padding:4px 8px;
+    font-size:0.75rem;
+    border-radius:4px;
+  }
+
+  /* DESKTOP IMPROVEMENTS */
+  @media(min-width:768px){
+    .cart-row{
+      padding:12px;
+      border-radius:12px;
+    }
+    
+    .cart-main{
+      margin-bottom:8px;
+    }
+    
+    .cart-name{
+      font-size:1rem;
+      white-space:normal;
+    }
+    
+    .cart-price{
+      font-size:0.9rem;
+    }
+    
+    .qty-mobile{
+      width:40px;
+      height:32px;
+      font-size:0.9rem;
+    }
+    
+    .btn-mobile{
+      width:32px;
+      height:32px;
+      font-size:0.9rem;
+    }
+    
+    .btn-remove-mobile{
+      width:32px;
+      height:32px;
+    }
+    
+    .nego-toggle{
+      font-size:0.8rem;
+      padding:6px 10px;
+    }
+  }
+
+  /* Legacy styles - keeping for backward compatibility but hidden */
+  .cart-left, .cart-title, .muted, .cart-controls, .qty, .circle, .x-remove {
+    display: none;
+  }
+
+  .total-line{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
   .total-big{font-weight:900;font-size:1.05rem}
-  .pay-actions{display:flex;gap:10px;flex-wrap:wrap}
+  .pay-actions{display:flex;gap:8px;flex-wrap:wrap}
+  
+  /* Mobile optimization for pay actions */
+  @media(max-width:767px){
+    .pay-actions{
+      gap:6px;
+    }
+    .pay-actions .btn, .pay-actions .btn-primary{
+      flex:1;
+      min-width:0;
+      padding:10px 8px;
+      font-size:0.85rem;
+    }
+  }
 
   .confirm{border:1px dashed var(--ring);background:#fff9f9;border-radius:12px;padding:10px;display:none}
   body.dark .confirm{background:#2a0f12}
@@ -183,7 +343,7 @@
         <div class="page-info" id="pageInfo">Halaman 1</div>
       </div>
 
-      <!-- Quick buttons -->
+      <!-- Quick buttons DIPINDAH ke atas pembayaran -->
       <div class="quick" id="quickBar">
         <div id="qaMember" class="chip red">+ Member</div>
         <div id="qaItem"   class="chip green">+ Item</div>
@@ -500,28 +660,35 @@ function calcTotals(){
   });
   return {count,total,saving,grand: total};
 }
+
+// UPDATED RENDER CART FUNCTION - MINIMALIST MOBILE DESIGN
 function renderCart(){
   cartList.innerHTML = keranjang.length ? keranjang.map((it)=>{
     const total = it.qty*it.hargaAkhirSatuan;
     const vid = `nego_${it.id}`;
+    const displayName = it.produk?.nama || it.nama;
+    const variant = it.produk?.variasi;
+    
     return `
       <div class="cart-row">
-        <div class="cart-left">
-          <div class="cart-title">${it.produk?.nama || it.nama}${it.produk?.variasi?` <span class="muted">(${it.produk.variasi})</span>`:''}</div>
-          <div class="muted">${rupiah(it.hargaAkhirSatuan)} × ${it.qty} = <b>${rupiah(total)}</b></div>
-          <div class="nego-box" id="${vid}">
-            <input type="number" min="0" step="100" value="${it.hargaAkhirSatuan}" class="qty" style="width:110px">
-            <button class="btn" onclick="applyNego('${it.id}')">OK</button>
-            <button class="btn" onclick="toggleNego('${it.id}',false)">Batal</button>
+        <div class="cart-main">
+          <div class="cart-info">
+            <div class="cart-name" title="${displayName}${variant ? ` (${variant})` : ''}">${displayName}${variant ? ` (${variant})` : ''}</div>
+            <div class="cart-price">${rupiah(it.hargaAkhirSatuan)} × ${it.qty} = ${rupiah(total)}</div>
           </div>
-          <button class="nego-toggle" onclick="toggleNego('${it.id}',true)">Nego</button>
+          <div class="cart-controls-mobile">
+            <button class="btn-mobile" onclick="chgQty('${it.id}',-1)">−</button>
+            <input class="qty-mobile" value="${it.qty}" onchange="setQty('${it.id}',this.value)">
+            <button class="btn-mobile" onclick="chgQty('${it.id}',1)">+</button>
+            <button class="btn-remove-mobile" title="Hapus" onclick="removeItem('${it.id}')">×</button>
+          </div>
         </div>
-        <div class="cart-controls">
-          <button class="circle" onclick="chgQty('${it.id}',-1)">−</button>
-          <input class="qty" value="${it.qty}" onchange="setQty('${it.id}',this.value)">
-          <button class="circle" onclick="chgQty('${it.id}',1)">+</button>
-          <button class="x-remove" title="Hapus" onclick="removeItem('${it.id}')">✕</button>
+        <div class="nego-box" id="${vid}">
+          <input type="number" min="0" step="100" value="${it.hargaAkhirSatuan}">
+          <button class="btn" onclick="applyNego('${it.id}')">OK</button>
+          <button class="btn" onclick="toggleNego('${it.id}',false)">Batal</button>
         </div>
+        <button class="nego-toggle" onclick="toggleNego('${it.id}',true)">Nego Harga</button>
       </div>
     `;
   }).join('') : `<div class="muted">Keranjang kosong.</div>`;
@@ -784,9 +951,9 @@ async function submitMember(){
 
 /* Tambah item manual – auto baca harga dari nama "(12345)" jika kolom harga kosong */
 function parseHargaFromName(nama){
-  // Ambil angka di dalam tanda kurung, contoh: "Kurir (30.000)" -> 30000
-  const m = String(nama || '').match(/\((\d[\d\.]*)\)/);  // ← sudah benar
-  return m ? Number(m[1].replace(/\./g, '')) : 0;
+  const m = String(nama||'').match(/\((\d[\d\.]*)\)/);
+  if(!m) return 0;
+  return Number(m[1].replace(/\./g,''));
 }
 function addItemManual(){
   const nama = (document.getElementById('i_nama').value||'').trim();
@@ -812,4 +979,3 @@ tryAutoLogin();
 </script>
 </body>
 </html>
-
