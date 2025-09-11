@@ -17,6 +17,8 @@
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);font:500 15px/1.4 "Inter",system-ui,-apple-system,Segoe UI,Roboto,Arial}
+  .hidden{display:none !important}
+
   .container{max-width:1060px;margin:0 auto;padding:16px}
   .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
   .spacer{flex:1}
@@ -36,10 +38,7 @@
   .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
   .card .h{padding:14px 16px;border-bottom:1px solid var(--border);font-weight:700}
   .card .c{padding:14px 16px}
-  .grid{
-    display:grid; gap:14px;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
+  .grid{display:grid; gap:14px; grid-template-columns:repeat(2,minmax(0,1fr))}
   @media(min-width:900px){ .grid{ grid-template-columns:repeat(4,minmax(0,1fr)); } }
 
   /* Product card */
@@ -60,11 +59,10 @@
   .nav-pages{display:flex;gap:10px;align-items:center;margin:12px 0 10px}
   .badge{font-weight:800}
 
-  /* Checkout panel */
+  /* Checkout */
   .checkout{position:sticky;bottom:10px}
   .pay-card{padding:14px}
   .cart-list{display:flex;flex-direction:column;gap:8px}
-  /* Compact cart row (maks 2-3 baris total tinggi) */
   .cart-row{
     display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;
     gap:8px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--card)
@@ -77,31 +75,10 @@
   .cart-total{font-weight:800}
   .cart-ctrl{display:flex;align-items:center;gap:8px}
   .cart-del{border:0;background:#fef0f0;color:#cc3636;border:1px solid #f5cccc;border-radius:8px;padding:6px 8px;cursor:pointer}
+
   .nego-btn{border:1px dashed var(--border);background:var(--pill);padding:4px 8px;border-radius:8px;cursor:pointer;font-size:12px}
-  .price-control.hidden{display:none !important}
-
-  .pay-footer{display:flex;gap:10px;flex-wrap:wrap;padding-top:8px;border-top:1px dashed var(--border);margin-top:10px}
-  .pay-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-  .radio{display:flex;gap:8px;align-items:center}
-  .strong{font-weight:800}
-  .right{margin-left:auto}
-  .success{color:var(--accent);font-weight:800}
-
-  /* Modal */
-  .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.35);z-index:30}
-  .modal.show{display:grid}
-  .modal .box{width:min(420px,92vw);background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
-  .box .hd{padding:14px 16px;border-bottom:1px solid var(--border);font-weight:800}
-  .box .bd{padding:16px}
-  .box .ft{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
-  .box input,.box select,.box textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--bg);color:var(--text)}
-  .box label{display:block;margin:10px 0 6px}
-
-  /* Report table (kept minimal) */
-  table{width:100%;border-collapse:collapse}
-  th,td{padding:8px;border-bottom:1px solid var(--border)}
-  th{text-align:left}
-  .t-right{text-align:right}
+  .nego-box{display:inline-flex;gap:6px;align-items:center}
+  .nego-box input{width:84px;padding:6px 8px;border:1px solid var(--border);border-radius:8px}
 </style>
 </head>
 <body data-theme="light">
@@ -120,7 +97,7 @@
       </div>
     </header>
 
-    <!-- ---------- LOGIN PAGE ---------- -->
+    <!-- ---------- LOGIN PAGE (selalu satu-satunya yang tampil ketika belum login) ---------- -->
     <div id="loginPage" class="card">
       <div class="h">Login Kasir/Admin</div>
       <div class="c">
@@ -134,7 +111,7 @@
     <!-- ---------- APP PAGE ---------- -->
     <div id="appContainer" class="hidden">
 
-      <!-- Action bar (+Member, +Item, Diskon, Info Modal, Tema) -->
+      <!-- Action bar -->
       <div class="row" style="margin:12px 0">
         <button id="btnAddMember" class="btn btn-primary">+ Member</button>
         <button id="btnItemManual" class="btn btn-accent">+ Item</button>
@@ -165,47 +142,47 @@
           <div class="card pay-card">
             <div class="h">Keranjang</div>
             <div class="c">
-              <!-- STEP: review (list items) -->
+              <!-- STEP: review -->
               <div id="cartReview">
                 <div id="cartList" class="cart-list"></div>
-                <div class="pay-row" style="margin-top:6px">
-                  <span class="muted">Item: <span id="cartCount" class="strong">0</span></span>
-                  <span class="right">Total: <span id="cartGrand" class="strong">Rp 0</span></span>
+                <div class="row" style="margin-top:6px">
+                  <span class="muted">Item: <span id="cartCount" style="font-weight:800">0</span></span>
+                  <span class="spacer"></span>
+                  <span>Total: <b id="cartGrand">Rp 0</b></span>
                 </div>
-                <div class="pay-footer">
+                <div style="margin-top:8px">
                   <button id="goPayBtn" class="btn btn-primary">Lanjut Pembayaran</button>
                 </div>
               </div>
 
-              <!-- STEP: pay (hide items, show metode) -->
-              <div id="cartPay" style="display:none">
-                <div class="pay-row">
-                  <label class="radio"><input type="radio" name="paymethod" value="Tunai" checked> Tunai</label>
-                  <label class="radio"><input type="radio" name="paymethod" value="Non-Tunai"> Non-Tunai</label>
-                  <select id="nonTunaiDetail" class="select" style="display:none">
+              <!-- STEP: pay -->
+              <div id="cartPay" class="hidden">
+                <div class="row">
+                  <label><input type="radio" name="paymethod" value="Tunai" checked> Tunai</label>
+                  <label><input type="radio" name="paymethod" value="Non-Tunai"> Non-Tunai</label>
+                  <select id="nonTunaiDetail" class="select hidden">
                     <option value="QRIS">QRIS</option>
                     <option value="Transfer">Transfer</option>
                     <option value="ShopeePay">ShopeePay</option>
                     <option value="GoPay">GoPay</option>
                   </select>
+                  <span class="spacer"></span>
+                  <span>Total: <b id="payGrand">Rp 0</b></span>
                 </div>
-                <div class="pay-row" style="margin-top:6px">
-                  <span class="muted">Item: <span id="payCount" class="strong">0</span></span>
-                  <span class="right">Total: <span id="payGrand" class="strong">Rp 0</span></span>
-                </div>
-                <div class="pay-footer">
+                <div style="margin-top:8px;display:flex;gap:10px;flex-wrap:wrap">
                   <button id="backToReviewBtn" class="btn btn-ghost">KEMBALI</button>
                   <button id="confirmSaveBtn" class="btn btn-primary">KONFIRMASI & SIMPAN</button>
                 </div>
               </div>
 
-              <!-- STEP: saved (show print & finish) -->
-              <div id="cartSaved" style="display:none">
-                <div class="pay-row">
-                  <div>Transaksi <span id="savedId" class="success">#-</span> tersimpan.</div>
-                  <span class="right">Total: <span id="savedGrand" class="strong">Rp 0</span></span>
+              <!-- STEP: saved -->
+              <div id="cartSaved" class="hidden">
+                <div class="row">
+                  <div>Transaksi <b id="savedId">#-</b> tersimpan.</div>
+                  <span class="spacer"></span>
+                  <span>Total: <b id="savedGrand">Rp 0</b></span>
                 </div>
-                <div class="pay-footer">
+                <div style="margin-top:8px;display:flex;gap:10px;flex-wrap:wrap">
                   <button id="printBtn" class="btn btn-info">CETAK STRUK</button>
                   <button id="finishBtn" class="btn btn-accent">SELESAI</button>
                 </div>
@@ -216,13 +193,11 @@
         </div>
       </div>
 
-      <!-- ---------- REPORTS ---------- -->
+      <!-- ---------- REPORTS (HANYA tampil jika tab Laporan diklik) ---------- -->
       <div id="laporanPage" class="hidden">
         <div class="card">
           <div class="h">Laporan Penjualan Hari Ini (<span id="lapTitleCabang">Semua</span>)</div>
-          <div class="c" id="reportContent">
-            Memuat...
-          </div>
+          <div class="c" id="reportContent">Memuat...</div>
         </div>
       </div>
 
@@ -230,45 +205,45 @@
 
     <!-- ======= MODALS ======= -->
     <!-- Add Member -->
-    <div id="modalMember" class="modal"><div class="box">
-      <div class="hd">Daftarkan Member Baru</div>
-      <div class="bd">
-        <label>Nomor HP</label><input id="m_hp" placeholder="0812xxxxxx" />
-        <label>Nama</label><input id="m_nama" placeholder="Nama member" />
-        <label>Catatan</label><input id="m_catatan" placeholder="(opsional)"/>
-      </div>
-      <div class="ft">
-        <button class="btn btn-ghost" data-close>Batalkan</button>
-        <button id="m_simpan" class="btn btn-primary">Simpan</button>
+    <div id="modalMember" class="modal hidden"><div class="card" style="max-width:420px;margin:auto">
+      <div class="h">Daftarkan Member Baru</div>
+      <div class="c">
+        <label>Nomor HP</label><input id="m_hp" class="search" placeholder="0812xxxxxx" />
+        <label>Nama</label><input id="m_nama" class="search" placeholder="Nama member" />
+        <label>Catatan</label><input id="m_catatan" class="search" placeholder="(opsional)"/>
+        <div class="row" style="margin-top:8px;justify-content:flex-end">
+          <button class="btn btn-ghost" data-close>Batalkan</button>
+          <button id="m_simpan" class="btn btn-primary">Simpan</button>
+        </div>
       </div>
     </div></div>
 
     <!-- Item Manual -->
-    <div id="modalItem" class="modal"><div class="box">
-      <div class="hd">Tambah Item Manual</div>
-      <div class="bd">
-        <label>Nama Item</label><input id="i_nama" placeholder="Contoh: Kurir (Custom)" />
-        <label>Ukuran/Variasi</label><input id="i_var" placeholder="(opsional)"/>
-        <label>Harga Satuan</label><input id="i_harga" type="number" inputmode="numeric" placeholder="15000" />
-        <label>Qty</label><input id="i_qty" type="number" inputmode="numeric" value="1" />
-      </div>
-      <div class="ft">
-        <button class="btn btn-ghost" data-close>Batalkan</button>
-        <button id="i_tambah" class="btn btn-accent">Tambah</button>
+    <div id="modalItem" class="modal hidden"><div class="card" style="max-width:420px;margin:auto">
+      <div class="h">Tambah Item Manual</div>
+      <div class="c">
+        <label>Nama Item</label><input id="i_nama" class="search" placeholder="Contoh: Kurir (Custom)" />
+        <label>Ukuran/Variasi</label><input id="i_var" class="search" placeholder="(opsional)"/>
+        <label>Harga Satuan</label><input id="i_harga" class="search" type="number" inputmode="numeric" placeholder="15000" />
+        <label>Qty</label><input id="i_qty" class="search" type="number" inputmode="numeric" value="1" />
+        <div class="row" style="margin-top:8px;justify-content:flex-end">
+          <button class="btn btn-ghost" data-close>Batalkan</button>
+          <button id="i_tambah" class="btn btn-accent">Tambah</button>
+        </div>
       </div>
     </div></div>
 
     <!-- Diskon Member -->
-    <div id="modalDiskon" class="modal"><div class="box">
-      <div class="hd">Aktifkan Diskon Member</div>
-      <div class="bd">
+    <div id="modalDiskon" class="modal hidden"><div class="card" style="max-width:420px;margin:auto">
+      <div class="h">Aktifkan Diskon Member</div>
+      <div class="c">
         <label>Nomor HP Member</label>
-        <input id="d_hp" placeholder="0812xxxxxx" />
-        <div class="muted" style="margin-top:6px">Cukup 1 tombol: jika terdaftar → diskon aktif, jika tidak → beri info & tutup.</div>
-      </div>
-      <div class="ft">
-        <button class="btn btn-ghost" data-close>Tutup</button>
-        <button id="d_terapkan" class="btn btn-primary">Terapkan Diskon</button>
+        <input id="d_hp" class="search" placeholder="0812xxxxxx" />
+        <div class="muted" style="margin-top:6px">Jika terdaftar → diskon aktif, jika tidak → beri info & tutup.</div>
+        <div class="row" style="margin-top:8px;justify-content:flex-end">
+          <button class="btn btn-ghost" data-close>Tutup</button>
+          <button id="d_terapkan" class="btn btn-primary">Terapkan Diskon</button>
+        </div>
       </div>
     </div></div>
 
@@ -280,7 +255,7 @@
 ================================ */
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwJVXMVdiDZ0VLQSypJtr2dy1gziXMdBMmNbrpUuzcxVXTN9_cxJ3iUvbSPum67jFagzw/exec';
 
-/* GET helper untuk semua panggilan (anti CORS preflight) */
+/* GET helper: anti preflight */
 async function getData(action, payload = {}) {
   const url = new URL(SCRIPT_URL);
   url.searchParams.set('action', action);
@@ -301,7 +276,7 @@ let keranjang = [];
 let currentUser = null;
 let currentPage = 1, itemsPerPage = 8;
 let isMemberActive = false;
-let checkoutStep = 'review'; // 'review' | 'pay' | 'saved'
+let checkoutStep = 'review';
 let savedTransaksi = null;
 let showInfoModal = false;
 
@@ -322,26 +297,30 @@ function loadSession() {
   }catch(e){}
 }
 
+/* normalize HP: terima yang pakai 0 / tanpa 0 / +62 */
 function normHP(s){
-  let d = String(s||'').replace(/\D/g,''); // keep digits
+  let d = String(s||'').replace(/\D/g,'');
+  if (d.startsWith('62')) d = d.slice(2);
   if (d.startsWith('0')) d = d.slice(1);
   return d;
 }
 
+/* Login gate: ketika belum login → hanya form login */
 function ensureLoginGate() {
   if (currentUser){
-    $('#loginPage').style.display='none';
+    $('#loginPage').classList.add('hidden');
     $('#appContainer').classList.remove('hidden');
     $('#userBadge').textContent = `${currentUser.role}: ${currentUser.email} | Cabang: ${currentUser.cabang}`;
+    // default ke tab Kasir
     $('#tabKasir').classList.add('active');
     $('#tabLaporan').classList.remove('active');
     $('#kasirPage').classList.remove('hidden');
     $('#laporanPage').classList.add('hidden');
     refreshProduk();
     renderCart();
-    loadReport();
+    // TIDAK load report di beranda
   }else{
-    $('#loginPage').style.display='block';
+    $('#loginPage').classList.remove('hidden');
     $('#appContainer').classList.add('hidden');
   }
 }
@@ -443,25 +422,17 @@ $('#nextPageBtn').onclick = ()=>{ currentPage=Math.min(Math.ceil(filteredProduk(
 $('#searchInput').oninput = ()=>{ currentPage=1; renderProducts(); };
 
 /* ==============================
-   CART / CHECKOUT
+   CART / CHECKOUT + NEGO
 ================================ */
 function addToCart(prod){
   const hargaJual = isMemberActive ? (+prod['Harga Member']||+prod['Harga Jual']||0) : (+prod['Harga Jual']||0);
-  const item = {
-    produk: prod,
-    nama: prod['Nama Produk']||'',
-    variasi: prod['Ukuran/Variasi']||'',
-    harga: +hargaJual||0,
-    qty: 1,
-    manual:false,
-  };
+  const item = { produk: prod, nama: prod['Nama Produk']||'', variasi: prod['Ukuran/Variasi']||'', harga: +hargaJual||0, qty: 1, manual:false };
   keranjang.push(item);
   renderCart();
-  scrollToCheckout();
+  document.querySelector('.checkout').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-function scrollToCheckout(){ document.querySelector('.checkout').scrollIntoView({behavior:'smooth',block:'nearest'}); }
 
-/* Tambah item manual */
+/* Item manual */
 $('#btnItemManual').onclick = ()=> openModal('#modalItem');
 $('#i_tambah').onclick = ()=>{
   const nama = $('#i_nama').value.trim();
@@ -473,10 +444,9 @@ $('#i_tambah').onclick = ()=>{
     produk: {'ID Produk': `MANUAL-${Date.now()}`, 'Nama Produk': nama, 'Ukuran/Variasi': varian},
     nama, variasi: varian, harga, qty, manual:true
   });
-  closeModal('#modalItem'); clearItemManual();
-  renderCart(); scrollToCheckout();
+  closeModal('#modalItem'); $('#i_nama').value=''; $('#i_var').value=''; $('#i_harga').value=''; $('#i_qty').value=1;
+  renderCart();
 };
-function clearItemManual(){ $('#i_nama').value=''; $('#i_var').value=''; $('#i_harga').value=''; $('#i_qty').value=1; }
 
 /* Diskon member */
 $('#btnDiskon').onclick = ()=> openModal('#modalDiskon');
@@ -489,7 +459,6 @@ $('#d_terapkan').onclick = async ()=>{
       isMemberActive = true; saveSession();
       alert('Diskon member diaktifkan.');
       closeModal('#modalDiskon');
-      // refresh harga item di keranjang → harga member
       keranjang = keranjang.map(it=>{
         if (it.manual) return it;
         const hargaMember = +it.produk['Harga Member']||0;
@@ -503,26 +472,9 @@ $('#d_terapkan').onclick = async ()=>{
   }catch(e){ alert('Gagal memeriksa member.'); }
 };
 
-/* Tambah member */
-$('#btnAddMember').onclick = ()=> openModal('#modalMember');
-$('#m_simpan').onclick = async ()=>{
-  const hp = $('#m_hp').value.trim();
-  const nama = $('#m_nama').value.trim();
-  const cat = $('#m_catatan').value.trim();
-  if(!hp || !nama) return alert('HP & Nama wajib diisi.');
-  try{
-    const out = await getData('tambahMemberBaru', { nomorHp: hp, nama, catatan: cat });
-    if (out.success){ alert('Member ditambahkan.'); closeModal('#modalMember'); }
-    else alert(out.message||'Gagal menyimpan.');
-  }catch(e){ alert('Gagal ke server.'); }
-};
-
-/* Render cart (ringkas) */
+/* Render cart (ringkas + tombol Nego) */
 function renderCart(){
-  // langkah/step
   showStep(checkoutStep);
-
-  // isi daftar item (saat review)
   const list = $('#cartList');
   list.innerHTML = keranjang.map((it,idx)=>{
     const total = it.harga*it.qty;
@@ -532,10 +484,17 @@ function renderCart(){
           <div class="cart-title">${it.nama}</div>
           <div class="cart-sub">${it.variasi||''}</div>
         </div>
+
         <div class="cart-ctrl">
-          <span class="nego-btn price-control hidden" data-idx="${idx}">Nego</span>
-          <!-- tombol nego bisa kamu aktifkan dengan menghapus class 'hidden' pada runtime jika perlu -->
+          <button class="nego-btn" onclick="startNego(${idx})">Nego</button>
+          <span id="negoBox-${idx}" class="nego-box hidden">
+            <span>Rp</span>
+            <input id="negoInput-${idx}" type="number" inputmode="numeric" value="${it.harga}">
+            <button class="btn btn-ghost" onclick="applyNego(${idx})">OK</button>
+            <button class="btn btn-ghost" onclick="cancelNego(${idx})">Batal</button>
+          </span>
         </div>
+
         <div class="cart-ctrl">
           <div class="qty-wrap">
             <button onclick="editQty(${idx},-1)">−</button>
@@ -543,6 +502,7 @@ function renderCart(){
             <button onclick="editQty(${idx},+1)">+</button>
           </div>
         </div>
+
         <div style="text-align:right">
           <div class="cart-total">${fmt(total)}</div>
           <button class="cart-del" onclick="hapusItem(${idx})">✕</button>
@@ -551,57 +511,61 @@ function renderCart(){
     `;
   }).join('');
 
-  // ringkasan
   const count = keranjang.reduce((a,b)=>a+b.qty,0);
   const grand = keranjang.reduce((a,b)=>a+(b.qty*b.harga),0);
   $('#cartCount').textContent = count;
   $('#cartGrand').textContent = fmt(grand);
-  $('#payCount').textContent = count;
   $('#payGrand').textContent = fmt(grand);
 }
-function editQty(i, delta){
-  keranjang[i].qty = Math.max(1, (keranjang[i].qty||1)+delta);
+function editQty(i, delta){ keranjang[i].qty = Math.max(1, (keranjang[i].qty||1)+delta); renderCart(); }
+function hapusItem(i){ keranjang.splice(i,1); renderCart(); }
+
+/* Nego handlers */
+function startNego(i){
+  document.getElementById(`negoBox-${i}`).classList.remove('hidden');
+  document.getElementById(`negoInput-${i}`).focus();
+}
+function applyNego(i){
+  const v = +document.getElementById(`negoInput-${i}`).value || 0;
+  if (v<=0) return alert('Harga tidak valid.');
+  keranjang[i].harga = v;
+  cancelNego(i);
   renderCart();
 }
-function hapusItem(i){ keranjang.splice(i,1); renderCart(); }
+function cancelNego(i){
+  document.getElementById(`negoBox-${i}`).classList.add('hidden');
+}
 
 /* Step controller */
 function showStep(step){
   checkoutStep = step;
-  $('#cartReview').style.display = (step==='review')?'block':'none';
-  $('#cartPay').style.display = (step==='pay')?'block':'none';
-  $('#cartSaved').style.display = (step==='saved')?'block':'none';
+  $('#cartReview').classList.toggle('hidden', step!=='review');
+  $('#cartPay').classList.toggle('hidden', step!=='pay');
+  $('#cartSaved').classList.toggle('hidden', step!=='saved');
 }
 
-/* Flow tombol checkout */
+/* Flow checkout */
 $('#goPayBtn').onclick = ()=>{
   if (keranjang.length===0) return alert('Keranjang kosong.');
   showStep('pay');
 };
 $('#backToReviewBtn').onclick = ()=> showStep('review');
 
-$('input[name="paymethod"]').forEach?.(r=>r.onchange=toggleNonTunai);
-$all('input[name="paymethod"]').forEach(r=> r.onchange = toggleNonTunai);
-function toggleNonTunai(){
+$all('input[name="paymethod"]').forEach(r=> r.onchange = ()=>{
   const v = [...$all('input[name="paymethod"]')].find(r=>r.checked)?.value;
-  $('#nonTunaiDetail').style.display = (v==='Non-Tunai')?'inline-block':'none';
-}
+  $('#nonTunaiDetail').classList.toggle('hidden', v!=='Non-Tunai');
+});
 
-/* SIMPAN TRANSAKSI → kemudian tampil tombol CETAK & SELESAI */
+/* Simpan transaksi → tampil CETAK & SELESAI */
 $('#confirmSaveBtn').onclick = async ()=>{
   if (keranjang.length===0) return alert('Keranjang kosong.');
   const metode = [...$all('input[name="paymethod"]')].find(r=>r.checked)?.value || 'Tunai';
   const det = (metode==='Non-Tunai') ? $('#nonTunaiDetail').value : '';
   const payload = {
     cabang: currentUser?.cabang || 'Pusat',
-    metodePembayaran: metode,
-    detailMetode: det,
+    metodePembayaran: metode, detailMetode: det,
     memberId: isMemberActive ? 'member' : '',
-    items: keranjang.map(it => ({
-      produk: it.produk,
-      qty: it.qty,
-      hargaAkhirSatuan: it.harga
-    }))
+    items: keranjang.map(it => ({ produk: it.produk, qty: it.qty, hargaAkhirSatuan: it.harga }))
   };
   try{
     $('#confirmSaveBtn').disabled = true;
@@ -623,9 +587,7 @@ $('#printBtn').onclick = ()=> printStruk();
 $('#finishBtn').onclick = ()=>{
   keranjang = []; savedTransaksi=null; isMemberActive=false;
   saveSession();
-  showStep('review');
-  renderCart();
-  window.scrollTo({top:0,behavior:'smooth'});
+  showStep('review'); renderCart(); window.scrollTo({top:0,behavior:'smooth'});
 };
 
 /* Print 58mm sederhana */
@@ -644,15 +606,14 @@ function printStruk(){
     <hr/>
     <div style="text-align:right">Total: <b>${$('#savedGrand').textContent}</b></div>
     <div style="margin-top:8px;text-align:center">Terima kasih</div>
-  </div>
-  `;
+  </div>`;
   const w = window.open('', '_blank', 'width=320,height=600');
   w.document.write(`<html><body onload="window.print();window.close()">${html}</body></html>`);
   w.document.close();
 }
 
 /* ==============================
-   REPORTS (ringkas + hapus item utk Admin)
+   REPORTS (muncul hanya di tab Laporan)
 ================================ */
 function badgeCabang(c){ return `<span class="pill">${c}</span>`; }
 
@@ -675,7 +636,7 @@ async function loadReport(){
             <div class="row">
               <div>Total Penjualan: <b>${fmt(rep.totalPenjualan)}</b></div>
               <div class="spacer"></div>
-              <div>Jumlah Transaksi: <b>${rep.jumlahTransaksi}</b></div>
+              <div>Jumlah Transaksi: <b>${rep.jumlahTransaksi)}</b></div>
             </div>
             <div class="row" style="margin-top:6px">
               <div>Tunai: <b>${fmt(rep.totalTunai)}</b></div>
@@ -683,11 +644,9 @@ async function loadReport(){
               <div>Non-Tunai: <b>${fmt(rep.totalNonTunai)}</b></div>
             </div>
           </div>
-        </div>
-      `;
+        </div>`;
     });
 
-    // detail per cabang
     if (currentUser.role==='Admin' && detail.groupedTransactions){
       Object.keys(detail.groupedTransactions).forEach(cab=>{
         const rows = detail.groupedTransactions[cab];
@@ -702,8 +661,7 @@ async function loadReport(){
               <td class="t-right">${fmt(r.hargaSatuan)}</td>
               <td class="t-right">${fmt(r.total)}</td>
               <td>${currentUser.role==='Admin'?`<button class="btn btn-ghost" onclick="hapusRow(${r.row})">Hapus</button>`:''}</td>
-            </tr>
-          `).join('')}
+            </tr>`).join('')}
           </tbody></table></div></div></details>`;
       });
     }else if (detail.transactions){
@@ -718,8 +676,7 @@ async function loadReport(){
             <td class="t-right">${r.qty}</td>
             <td class="t-right">${fmt(r.hargaSatuan)}</td>
             <td class="t-right">${fmt(r.total)}</td>
-          </tr>
-        `).join('')}
+          </tr>`).join('')}
         </tbody></table></div></div></details>`;
     }
 
@@ -740,22 +697,28 @@ async function hapusRow(row){
 /* ==============================
    TABS
 ================================ */
-$('#tabKasir').onclick = ()=>{ $('#tabKasir').classList.add('active'); $('#tabLaporan').classList.remove('active'); $('#kasirPage').classList.remove('hidden'); $('#laporanPage').classList.add('hidden'); };
-$('#tabLaporan').onclick = ()=>{ $('#tabLaporan').classList.add('active'); $('#tabKasir').classList.remove('active'); $('#laporanPage').classList.remove('hidden'); $('#kasirPage').classList.add('hidden'); loadReport(); };
+$('#tabKasir').onclick = ()=>{
+  $('#tabKasir').classList.add('active'); $('#tabLaporan').classList.remove('active');
+  $('#kasirPage').classList.remove('hidden'); $('#laporanPage').classList.add('hidden');
+};
+$('#tabLaporan').onclick = ()=>{
+  $('#tabLaporan').classList.add('active'); $('#tabKasir').classList.remove('active');
+  $('#laporanPage').classList.remove('hidden'); $('#kasirPage').classList.add('hidden');
+  loadReport();
+};
 
 /* ==============================
    MODAL helpers
 ================================ */
-function openModal(sel){ const m=$(sel); if(!m)return; m.classList.add('show'); }
-function closeModal(sel){ const m=$(sel); if(!m)return; m.classList.remove('show'); }
-$all('[data-close]').forEach(b=> b.onclick = e => e.target.closest('.modal').classList.remove('show'));
+function openModal(sel){ $(sel).classList.remove('hidden'); }
+function closeModal(sel){ $(sel).classList.add('hidden'); }
+$all('[data-close]').forEach(b=> b.onclick = e => e.target.closest('.modal').classList.add('hidden'));
 
 /* ==============================
    BOOT
 ================================ */
 loadSession();
 ensureLoginGate();
-toggleNonTunai();
 </script>
 </body>
 </html>
