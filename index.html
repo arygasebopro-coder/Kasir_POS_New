@@ -12,6 +12,16 @@
     --bg:#f7f7f8; --card:#ffffff; --ring:#e5e7eb;
     --shadow:0 6px 16px rgba(0,0,0,.08); --radius:16px;
   }
+  /* DARK THEME overrides (aktif kalau body.dark) */
+  body.dark{
+    --bg:#0f172a;       /* slate-900 */
+    --card:#111827;     /* gray-900 */
+    --text:#e5e7eb;     /* gray-200 */
+    --muted:#9ca3af;    /* gray-400 */
+    --ring:#374151;     /* gray-700 */
+    --shadow:0 8px 18px rgba(0,0,0,.55);
+  }
+
   html,body{height:100%}
   body{margin:0;background:var(--bg);color:var(--text);
        font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial}
@@ -20,19 +30,27 @@
 
   .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
   .pill{display:inline-flex;gap:8px;align-items:center;background:#eef2ff;padding:.45rem .8rem;border-radius:999px;font-weight:700}
+  body.dark .pill{background:#1f2937}
   .logout{color:var(--brand);font-weight:800;cursor:pointer}
+  .icon-btn{border:1px solid var(--ring);background:#fff;border-radius:12px;padding:8px 12px;cursor:pointer}
+  body.dark .icon-btn{background:#0b1220}
 
   .tabs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px}
   .tab{padding:14px;border-radius:999px;background:#ececec;color:#6b7280;font-weight:800;text-align:center;cursor:pointer}
+  body.dark .tab{background:#0b1220;color:#9ca3af}
   .tab.active{background:linear-gradient(180deg,var(--brand),var(--brand-700));color:#fff}
 
-  .search{width:100%;border:1px solid var(--ring);border-radius:12px;padding:10px 12px;outline:none}
-  .toolbar{display:grid;grid-template-columns:1fr;gap:10px;margin:8px 0 14px}
+  .search{width:100%;border:1px solid var(--ring);border-radius:12px;padding:10px 12px;outline:none;background:#fff;color:var(--text)}
+  body.dark .search{background:#0b1220}
+  .toolbar{display:grid;grid-template-columns:1fr;gap:10px;margin:8px 0 8px}
 
-  /* produk 2-3 kolom */
+  .row-between{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+
+  /* produk grid 2–3 kolom */
   .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   @media(min-width:760px){ .grid{grid-template-columns:repeat(3,minmax(0,1fr))} }
   .p-card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+  body.dark .p-card{background:#0b1220}
   .p-img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#e5e7eb}
   .p-body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px}
   .p-name{font-weight:800}
@@ -40,17 +58,20 @@
   .p-price{font-weight:900;color:#ef4444;font-size:.98rem}
   .p-actions{display:flex;gap:8px;margin-top:6px}
   .add-btn{flex:1;border:none;border-radius:12px;padding:10px;background:#2e7d32;color:#fff;font-weight:800;cursor:pointer}
+  .extra{background:#f3f4f6;border-radius:12px;padding:8px 10px;margin-top:6px;color:var(--text)}
+  body.dark .extra{background:#111827}
 
   /* pager */
   .pager-row{margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
   .btn{border:1px solid var(--ring);background:#fff;border-radius:12px;padding:9px 12px;cursor:pointer}
+  body.dark .btn{background:#0b1220}
   .btn[disabled]{opacity:.5;cursor:not-allowed}
   .btn-primary{background:linear-gradient(180deg,var(--brand),var(--brand-700));color:#fff;border:none;font-weight:900}
   .btn-blue{background:var(--blue);color:#fff;border:none;font-weight:900}
   .btn-green{background:var(--green);color:#fff;border:none;font-weight:900}
   .page-info{color:var(--muted);font-weight:700;border:1px solid var(--ring);padding:8px 12px;border-radius:12px}
 
-  /* quick buttons (dipindah ke atas pembayaran) */
+  /* quick buttons */
   .quick{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
   .chip{padding:8px 12px;border-radius:999px;color:#fff;font-weight:800;box-shadow:var(--shadow);cursor:pointer}
   .chip.red{background:var(--brand)} .chip.green{background:var(--green)} .chip.blue{background:var(--blue)}
@@ -63,10 +84,13 @@
   .cart-title{font-weight:800}
   .muted{color:var(--muted);font-size:.84rem}
   .cart-controls{display:flex;align-items:center;gap:6px}
-  .qty{width:42px;text-align:center;border:1px solid var(--ring);border-radius:10px;padding:6px}
+  .qty{width:42px;text-align:center;border:1px solid var(--ring);border-radius:10px;padding:6px;background:#fff;color:var(--text)}
+  body.dark .qty{background:#0b1220}
   .circle{width:32px;height:32px;border-radius:50%;border:1px solid var(--ring);display:grid;place-items:center;background:#fff;cursor:pointer}
+  body.dark .circle{background:#0b1220}
   .x-remove{background:#fee2e2;border:none;color:#b91c1c;width:32px;height:32px;border-radius:50%;font-weight:900;cursor:pointer}
   .nego-toggle{border:1px dashed #f59e0b;background:#fff7ed;color:#b45309;border-radius:10px;padding:5px 8px;font-weight:700;cursor:pointer}
+  body.dark .nego-toggle{background:#3b2a00;color:#ffd08a}
   .nego-box{display:none;margin-top:6px}
   .nego-box.active{display:flex;gap:6px;align-items:center}
   .total-line{display:flex;justify-content:space-between;align-items:center;gap:10px}
@@ -74,13 +98,15 @@
   .pay-actions{display:flex;gap:10px;flex-wrap:wrap}
 
   .confirm{border:1px dashed var(--ring);background:#fff9f9;border-radius:12px;padding:10px;display:none}
+  body.dark .confirm{background:#2a0f12}
   .confirm.show{display:block}
 
   /* laporan */
   .section-title{font-weight:900;margin:6px 0 10px}
   .report-card{background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:14px;margin-top:10px}
-  .row-between{display:flex;justify-content:space-between;align-items:center}
+  body.dark .report-card{background:#0b1220}
   .acc{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f3f4f6;border-radius:12px;cursor:pointer}
+  body.dark .acc{background:#111827}
   .acc + .acc-body{display:none;padding:10px 0 0}
   .acc.open + .acc-body{display:block}
   .table{width:100%;border-collapse:collapse}
@@ -91,8 +117,10 @@
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:50}
   .modal.show{display:flex}
   .modal-card{background:#fff;border-radius:16px;box-shadow:var(--shadow);width:min(440px,92%);padding:16px}
+  body.dark .modal-card{background:#0b1220}
   .modal-title{font-weight:900;margin-bottom:8px}
-  .input{width:100%;border:1px solid var(--ring);border-radius:10px;padding:10px 12px;outline:none}
+  .input{width:100%;border:1px solid var(--ring);border-radius:10px;padding:10px 12px;outline:none;background:#fff;color:var(--text)}
+  body.dark .input{background:#0b1220}
   .row{display:flex;gap:10px;flex-wrap:wrap}
   .hidden{display:none !important}
 </style>
@@ -111,7 +139,8 @@
   <div id="appContainer" class="hidden">
     <div class="topbar">
       <div id="userInfo" style="font-weight:800"></div>
-      <div style="display:flex;align-items:center;gap:10px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <button id="themeToggle" class="icon-btn" title="Mode siang/malam">🌙</button>
         <span id="roleBadge" class="pill">Kasir</span>
         <span id="btnLogout" class="logout">Logout</span>
       </div>
@@ -126,6 +155,14 @@
     <div id="posPage" class="card">
       <div class="toolbar">
         <input id="searchBox" class="search" placeholder="Cari tanaman...">
+      </div>
+
+      <!-- bar: tampilkan info modal + tombol Home -->
+      <div class="row-between" style="margin:4px 0 10px">
+        <label class="muted" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="costToggle"> Tampilkan Info Modal
+        </label>
+        <button id="btnHome" class="btn-primary">Home</button>
       </div>
 
       <div id="produkGrid" class="grid"></div>
@@ -238,7 +275,7 @@
   </div>
 </div>
 
-<!-- DISKON: sederhana – 1 tombol "Terapkan Diskon" -->
+<!-- DISKON: 1 tombol Terapkan Diskon -->
 <div id="modalDiskon" class="modal">
   <div class="modal-card">
     <div class="modal-title">Aktifkan Diskon Member</div>
@@ -266,11 +303,16 @@ const itemsPerPage = 8;
 let memberActive = false;
 let memberNama = '';
 
+/* Preferensi UI */
+const PREF_THEME     = 'posTheme';     // 'light' | 'dark'
+const PREF_SHOWCOST  = 'posShowCost';  // true | false
+
 /* ================== UTIL ================== */
 const rupiah = n => 'Rp ' + (Number(n||0)).toLocaleString('id-ID');
-
 function saveUser(u){ localStorage.setItem('posUser', JSON.stringify(u||null)); }
 function loadUser(){ try{ return JSON.parse(localStorage.getItem('posUser')); }catch(e){ return null } }
+function setPref(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+function getPref(k, d=null){ try{ const v=localStorage.getItem(k); return v==null?d:JSON.parse(v);}catch(_){return d;} }
 
 function jsonp(action, payload={}){
   return new Promise((resolve,reject)=>{
@@ -288,6 +330,15 @@ function jsonp(action, payload={}){
 }
 const getData  = (a,p={})=>jsonp(a,p);
 const postData = (a,p={})=>jsonp(a,p);
+
+/* ================== THEME ================== */
+const themeBtn = document.getElementById('themeToggle');
+function applyTheme(t){
+  document.body.classList.toggle('dark', t==='dark');
+  themeBtn.textContent = (t==='dark') ? '☀️' : '🌙';
+  setPref(PREF_THEME, t);
+}
+themeBtn.onclick = ()=>{ const now = document.body.classList.contains('dark')?'dark':'light'; applyTheme(now==='dark'?'light':'dark'); };
 
 /* ================== LOGIN ================== */
 const loginPage = document.getElementById('loginPage');
@@ -345,6 +396,8 @@ const btnSaveOnly = document.getElementById('btnSaveOnly');
 const btnCancelConfirm = document.getElementById('btnCancelConfirm');
 const btnBackTop  = document.getElementById('btnBackToTop');
 const nonCashSel  = document.getElementById('nonCashDetail');
+const costToggle  = document.getElementById('costToggle');
+const btnHome     = document.getElementById('btnHome');
 
 async function initPOS(){
   if(!semuaProduk.length){
@@ -355,23 +408,48 @@ async function initPOS(){
       variasi: p['Ukuran/Variasi']||'',
       harga: Number(p['Harga Jual']||0),
       hargaMember: Number(p['Harga Member']||0),
+      modal: Number(p['Modal'] || p['Harga Modal'] || p['HPP'] || p['Harga Pokok'] || 0),
+      supplier: String(p['Supplier']||p['Pemasok']||''),
       foto: p['Foto URL']||''
     })) : [];
   }
   filteredProduk=[...semuaProduk]; currentPage=1;
+
+  /* apply preferensi UI */
+  applyTheme(getPref(PREF_THEME,'light'));
+  costToggle.checked = !!getPref(PREF_SHOWCOST,false);
+
   renderProduk(); renderPager(); renderCart();
 }
+
+/* tombol Home = reset pencarian & ke hal 1 */
+btnHome.onclick = ()=>{
+  searchBox.value=''; filteredProduk=[...semuaProduk]; currentPage=1;
+  renderProduk(); renderPager(); window.scrollTo({top:0,behavior:'smooth'});
+};
+
+/* show/hide info modal */
+costToggle.onchange = ()=>{ setPref(PREF_SHOWCOST, costToggle.checked); renderProduk(); };
+
 function renderProduk(){
+  const showCost = !!costToggle.checked;
   const start=(currentPage-1)*itemsPerPage;
   const list=filteredProduk.slice(start,start+itemsPerPage);
   grid.innerHTML=list.map(p=>{
     const img = p.foto ? `loading="lazy" src="${p.foto}"` : '';
+    const info = showCost ? `
+      <div class="extra">
+        <div>Modal: <b>${rupiah(p.modal||0)}</b></div>
+        <div>Member: <b>${rupiah(p.hargaMember||0)}</b></div>
+        <div>Supplier: <b>${p.supplier||'-'}</b></div>
+      </div>` : '';
     return `<div class="p-card">
       <img class="p-img" ${img} alt="">
       <div class="p-body">
         <div class="p-name">${p.nama}</div>
         ${p.variasi?`<div class="p-variant">${p.variasi}</div>`:''}
         <div class="p-price">${rupiah(p.harga)}</div>
+        ${info}
         <div class="p-actions"><button class="add-btn" data-id="${p.id}">+ Keranjang</button></div>
       </div>
     </div>`
@@ -387,6 +465,7 @@ function renderProduk(){
     };
   });
 }
+
 function renderPager(){
   const totalPages = Math.max(1, Math.ceil(filteredProduk.length/itemsPerPage));
   pageInfo.textContent = `Halaman ${currentPage} dari ${totalPages}`;
@@ -540,19 +619,17 @@ function cetakStruk(id, p){
 
 /* ================== MEMBER: 1 tombol + dukung 0/62 ================== */
 function buildPhoneVariants(raw){
-  // ambil digit saja
   let d = String(raw||'').replace(/\D+/g,'');
   const vs = new Set();
   if(!d) return [];
   vs.add(d);
-  if(d.startsWith('0')) vs.add(d.slice(1));            // 081234 -> 81234
-  if(d.startsWith('62')) vs.add(d.slice(2));           // 62812.. -> 812..
-  if(!d.startsWith('0')) vs.add('0'+d);                // 812..   -> 0812..
+  if(d.startsWith('0')) vs.add(d.slice(1));
+  if(d.startsWith('62')) vs.add(d.slice(2));
+  if(!d.startsWith('0')) vs.add('0'+d);
   const no0 = d.startsWith('0') ? d.slice(1) : d;
-  vs.add('62'+no0);                                    // 0812.. -> 62812..
+  vs.add('62'+no0);
   return Array.from(vs);
 }
-
 async function applyMemberDiscount(){
   const raw = document.getElementById('d_hp').value;
   const candidates = buildPhoneVariants(raw);
@@ -574,7 +651,6 @@ async function applyMemberDiscount(){
     alert('Nomor tidak terdaftar.');
   }
 }
-
 function repriceCartByMembership(){
   keranjang.forEach(k=>{
     if(k.produk && k.produk.id){
@@ -701,7 +777,7 @@ async function submitMember(){
 
 /* Tambah item manual – auto baca harga dari nama "(12345)" jika kolom harga kosong */
 function parseHargaFromName(nama){
-  const m = String(nama||'').match(/\((\d[\d\.]*)\)/); // ambil angka di dalam ( )
+  const m = String(nama||'').match(/\((\d[\d\.]*)\)/);
   if(!m) return 0;
   return Number(m[1].replace(/\./g,''));
 }
@@ -712,7 +788,7 @@ function addItemManual(){
   const varian=(document.getElementById('i_var').value||'').trim();
   if(!nama) return alert('Nama item kosong.');
   if(!(qty>0)) qty=1;
-  if(harga<=0){ // fallback: baca dari nama "…(30000)"
+  if(harga<=0){
     const h2 = parseHargaFromName(nama);
     if(h2>0) harga = h2;
   }
@@ -724,6 +800,7 @@ function addItemManual(){
 }
 
 /* ================== START ================== */
+applyTheme(getPref(PREF_THEME,'light'));  // set awal sebelum render
 tryAutoLogin();
 </script>
 </body>
