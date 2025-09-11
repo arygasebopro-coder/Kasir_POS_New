@@ -6,9 +6,8 @@
 <title>Kasir Toko Tanaman</title>
 
 <style>
-/* ======= GAYA UMUM (kembali seperti sebelumnya) ======= */
 :root{
-  --brand:#2e7d32;   /* hijau utama */
+  --brand:#2e7d32;
   --brand-700:#1b5e20;
   --muted:#6b7280;
   --line:#e6e8ef;
@@ -19,56 +18,38 @@
 html,body{margin:0;padding:0}
 body{background:var(--bg);color:#222;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
 
-/* layout */
 .container{max-width:1000px;margin:14px auto;padding:0 12px}
 .hidden{display:none!important}
 
-/* user bar */
 .userbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
 .userbar a{color:#c62828;font-weight:700;text-decoration:none}
 
-/* tabs */
 .tabs{display:flex;gap:.75rem;margin-bottom:10px}
 .tab{flex:1 1 auto;text-align:center;font-weight:700;background:#eceff4;border:1px solid var(--line);border-radius:12px;padding:.9rem 1rem;cursor:pointer}
 .tab.active{background:var(--brand);color:#fff;border-color:transparent}
 
-/* cards & inputs */
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
 .card h4{margin:.25rem 0 6px}
 select,input[type="email"],input[type="text"],input[type="number"]{width:100%;border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;background:#fff}
 input:focus,select:focus{outline:2px solid rgba(46,125,50,.18)}
 
-/* tombol besar (seperti sebelumnya) */
 .stack-btns{display:flex;flex-direction:column;gap:10px;margin:10px 0}
-.btn{
-  border:0;border-radius:10px;cursor:pointer;
-  font-weight:700;padding:.8rem 1rem;transition:filter .15s ease;
-}
+.btn{border:0;border-radius:10px;cursor:pointer;font-weight:700;padding:.8rem 1rem;transition:filter .15s ease;}
 .btn:active{filter:brightness(.95)}
 .btn--primary{background:var(--brand);color:#fff}
-.btn--secondary{background:#5f6b7a;color:#fff}   /* abu-abu seperti sebelumnya */
+.btn--secondary{background:#5f6b7a;color:#fff}
 .btn--ghost{background:#fff;border:1px dashed var(--line);color:#333}
 .btn--line{background:#fff;border:1px solid var(--line)}
 .btn--full{width:100%}
 
-/* filter + paginator */
 .filters{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin:8px 0}
 .filters .grow{flex:1 1 260px}
 .chip{background:#f0f3ff;border:1px solid #e0e7ff;padding:6px 10px;border-radius:999px;font-weight:700;color:#334}
 
-/* ======= Produk 2 kolom ======= */
-.product-grid{
-  display:grid;
-  grid-template-columns:repeat(2, minmax(0,1fr));
-  gap:10px;
-}
-@media (max-width: 360px){
-  .product-grid{ grid-template-columns:1fr; }
-}
-.p-card{
-  border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden;
-  display:grid;grid-template-rows:auto 1fr;transition:box-shadow .2s,transform .06s;
-}
+/* Produk 2 kolom */
+.product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width: 360px){ .product-grid{grid-template-columns:1fr} }
+.p-card{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden;display:grid;grid-template-rows:auto 1fr;transition:box-shadow .2s,transform .06s}
 .p-card:hover{box-shadow:0 10px 20px -12px rgba(0,0,0,.15);transform:translateY(-1px)}
 .p-img{width:100%;height:160px;object-fit:cover;background:#f3f4f6;display:block}
 .p-body{padding:10px;display:flex;flex-direction:column;gap:6px}
@@ -77,7 +58,6 @@ input:focus,select:focus{outline:2px solid rgba(46,125,50,.18)}
 .p-foot{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
 .price{font-weight:900;color:#c62828}
 
-/* keranjang */
 .two-cols{display:grid;gap:12px}
 @media (min-width:980px){ .two-cols{grid-template-columns:1.2fr .8fr} }
 .cart{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px}
@@ -88,17 +68,14 @@ input:focus,select:focus{outline:2px solid rgba(46,125,50,.18)}
 .price-control.hidden{display:none!important}
 .tag{background:#f3f4f6;border:1px solid var(--line);padding:4px 8px;border-radius:8px;font-weight:700}
 
-/* table laporan */
 .table{width:100%;border-collapse:collapse}
 .table th,.table td{border:1px solid var(--line);padding:8px 10px;font-size:.92rem}
 .table thead th{background:#fafafe;text-align:left}
 .row-actions button{background:#ffe4e6;border:1px solid #ffccd0;color:#c62828;padding:4px 8px;border-radius:8px;cursor:pointer}
 
-/* login */
 .login-card{max-width:520px;margin:30px auto}
 .login-card input{width:100%}
 
-/* print 58mm */
 @media print{
   @page{size:58mm auto;margin:0}
   body{background:#fff}
@@ -152,7 +129,7 @@ input:focus,select:focus{outline:2px solid rgba(46,125,50,.18)}
       </div>
 
       <div class="two-cols">
-        <!-- GRID PRODUK (2 kolom) -->
+        <!-- GRID PRODUK -->
         <div class="card">
           <div id="produkGrid" class="product-grid"></div>
         </div>
@@ -235,6 +212,27 @@ let lastSavedTransaction=null;
 
 const fmt = n => 'Rp ' + (Number(n||0)).toLocaleString('id-ID');
 
+/* ===== AUTO-LOGIN saat page load ===== */
+document.addEventListener('DOMContentLoaded', async () => {
+  const saved = localStorage.getItem('kasir_user_email');
+  if (!saved) return;
+  try{
+    const res = await getData('cekLogin', { email: saved });
+    if (res.success){
+      currentUser = res.user;
+      document.getElementById('userInfo').textContent = `Kasir: ${currentUser.email} | Cabang: ${currentUser.cabang}`;
+      document.getElementById('loginPage').classList.add('hidden');
+      document.getElementById('appContainer').classList.remove('hidden');
+      await inisialisasi();
+    }else{
+      localStorage.removeItem('kasir_user_email');
+    }
+  }catch(e){
+    // kalau gagal koneksi, tetap tampilkan login
+    localStorage.removeItem('kasir_user_email');
+  }
+});
+
 /* ===== LOGIN ===== */
 async function login(){
   const email = document.getElementById('emailInput').value.trim();
@@ -243,13 +241,14 @@ async function login(){
     const res = await getData('cekLogin', {email});
     if(!res.success){ alert(res.message||'Login gagal'); return; }
     currentUser = res.user;
+    localStorage.setItem('kasir_user_email', email);   // simpan supaya tidak login lagi
     document.getElementById('userInfo').textContent = `Kasir: ${currentUser.email} | Cabang: ${currentUser.cabang}`;
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('appContainer').classList.remove('hidden');
     await inisialisasi();
   }catch(e){ alert('Gagal terhubung ke server.'); }
 }
-function logout(){ location.reload(); }
+function logout(){ localStorage.removeItem('kasir_user_email'); location.reload(); }
 
 /* ===== INIT ===== */
 async function inisialisasi(){
@@ -265,7 +264,7 @@ async function inisialisasi(){
   updateProductView();
 }
 
-/* ===== PRODUK: 2 kolom ===== */
+/* ===== PRODUK: 2 kolom (FIX var ganda) ===== */
 function getFilteredProduk(){
   const q=(document.getElementById('searchInput').value||'').toLowerCase();
   return semuaProduk.filter(p=>p.nama.toLowerCase().includes(q));
@@ -278,11 +277,12 @@ function paginate(list){
 }
 function renderProduk(){
   const grid=document.getElementById('produkGrid');
-  const {data,pageData,totalPages} = (function(){ const d=getFilteredProduk(); const p=paginate(d); return {data:d, pageData:p.data, totalPages:p.totalPages}; })();
-  const pageData=paginate(getFilteredProduk()).data;
-  const totalPages=paginate(getFilteredProduk()).totalPages;
+  const filtered = getFilteredProduk();
+  const page = paginate(filtered);
+  const pageItems = page.data;
+  const totalPages = page.totalPages;
 
-  grid.innerHTML = pageData.map(p=>`
+  grid.innerHTML = pageItems.map(p=>`
     <div class="p-card">
       <img class="p-img" src="${p.foto||''}" alt="${p.nama}" loading="lazy" decoding="async" referrerpolicy="no-referrer">
       <div class="p-body">
@@ -322,7 +322,6 @@ function bukaFormManual(){
 function bukaFormMember(){ toggleMember(true); }
 function toggleMember(forceOn){
   if(forceOn===true) isMemberActive=true; else isMemberActive=!isMemberActive;
-  // sinkron harga di keranjang
   keranjang = keranjang.map(k=>{
     if(k.custom) return k;
     const p=semuaProduk.find(x=>x.nama===k.nama && x.variasi===k.variasi);
