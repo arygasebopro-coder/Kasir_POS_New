@@ -36,6 +36,13 @@
   .icon-btn{border:1px solid var(--ring);background:#fff;border-radius:12px;padding:8px 12px;cursor:pointer}
   body.dark .icon-btn{background:#0b1220}
 
+  /* TOPBAR USER INFO - PERKECIL UKURAN */
+  #userInfo{
+    font-weight:700;
+    font-size:0.8rem; /* Diperkecil dari default */
+    color:var(--muted);
+  }
+
   .tabs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px}
   .tab{padding:14px;border-radius:999px;background:#ececec;color:#6b7280;font-weight:800;text-align:center;cursor:pointer}
   body.dark .tab{background:#0b1220;color:#9ca3af}
@@ -78,7 +85,7 @@
   .chip{padding:8px 12px;border-radius:999px;color:#fff;font-weight:800;box-shadow:var(--shadow);cursor:pointer}
   .chip.red{background:var(--brand)} .chip.green{background:var(--green)} .chip.blue{background:var(--blue)}
 
-  /* CART DESIGN - Mengikuti gambar */
+  /* CART DESIGN - UKURAN DIPERKECIL */
   .pay-wrap{display:flex;flex-direction:column;gap:12px}
   .cart-list{display:flex;flex-direction:column;gap:8px;max-height:400px;overflow:auto}
   
@@ -95,19 +102,20 @@
     display:flex;
     justify-content:space-between;
     align-items:flex-start;
-    margin-bottom:12px;
+    margin-bottom:8px; /* Diperkecil dari 12px */
   }
   
   .cart-info h4{
     margin:0;
-    font-size:1rem;
+    font-size:0.9rem; /* Base size untuk nama produk */
     font-weight:700;
     color:var(--text-light);
+    line-height:1.2;
   }
   
   .cart-info p{
-    margin:4px 0 0 0;
-    font-size:0.9rem;
+    margin:2px 0 0 0; /* Diperkecil margin */
+    font-size:0.8rem; /* Diperkecil dari 0.9rem */
     color:var(--muted-light);
   }
   
@@ -116,57 +124,59 @@
     border:none;
     color:#fff;
     border-radius:50%;
-    width:28px;
-    height:28px;
+    width:20px; /* Diperkecil dari 28px */
+    height:20px; /* Diperkecil dari 28px */
     display:flex;
     align-items:center;
     justify-content:center;
     cursor:pointer;
     font-weight:700;
-    font-size:1.1rem;
+    font-size:0.9rem; /* Diperkecil */
   }
   
   .cart-controls{
     display:flex;
     align-items:center;
-    gap:8px;
+    gap:6px; /* Diperkecil dari 8px */
     flex-wrap:wrap;
   }
   
+  /* UKURAN BUTTON CONTROLS DIPERKECIL - SAMA DENGAN NAMA PRODUK */
   .qty-control{
     background:var(--green-light);
     border:none;
     color:#fff;
     border-radius:50%;
-    width:36px;
-    height:36px;
+    width:24px; /* Diperkecil dari 36px */
+    height:24px; /* Diperkecil dari 36px */
     display:flex;
     align-items:center;
     justify-content:center;
     cursor:pointer;
     font-weight:700;
-    font-size:1.2rem;
+    font-size:0.9rem; /* Sama dengan nama produk */
   }
   
   .qty-display{
     background:#444;
     color:#fff;
     border:none;
-    border-radius:8px;
-    width:60px;
-    height:36px;
+    border-radius:6px; /* Diperkecil dari 8px */
+    width:40px; /* Diperkecil dari 60px */
+    height:24px; /* Diperkecil dari 36px */
     text-align:center;
     font-weight:700;
-    font-size:1rem;
+    font-size:0.8rem; /* Diperkecil */
   }
   
   .nego-btn{
     background:var(--orange);
     color:#fff;
     border:none;
-    border-radius:8px;
-    padding:8px 16px;
+    border-radius:6px; /* Diperkecil dari 8px */
+    padding:4px 8px; /* Diperkecil dari 8px 16px */
     font-weight:700;
+    font-size:0.75rem; /* Diperkecil untuk sama dengan nama produk */
     cursor:pointer;
   }
   
@@ -174,10 +184,12 @@
     background:#333;
     color:#fff;
     border:1px solid #555;
-    border-radius:8px;
-    padding:8px;
-    width:100px;
+    border-radius:6px; /* Diperkecil dari 8px */
+    padding:4px 6px; /* Diperkecil dari 8px */
+    width:70px; /* Diperkecil dari 100px */
+    height:24px; /* Sama dengan qty-display */
     text-align:center;
+    font-size:0.75rem; /* Diperkecil */
     display:none;
   }
   
@@ -189,9 +201,10 @@
     background:var(--green-light);
     color:#fff;
     border:none;
-    border-radius:8px;
-    padding:8px 16px;
+    border-radius:6px; /* Diperkecil dari 8px */
+    padding:4px 8px; /* Diperkecil dari 8px 16px */
     font-weight:700;
+    font-size:0.75rem; /* Diperkecil */
     cursor:pointer;
     display:none;
   }
@@ -231,6 +244,15 @@
     font-size:1.3rem;
   }
   
+  /* PAYMENT DETAIL AREA */
+  .payment-detail{
+    background:var(--dark-bg);
+    color:var(--text-light);
+    border-radius:12px;
+    padding:20px;
+    margin:16px 0;
+  }
+  
   .payment-methods{
     margin:16px 0;
   }
@@ -239,20 +261,40 @@
     display:flex;
     align-items:center;
     gap:8px;
-    margin:8px 0;
+    margin:12px 0;
     font-weight:600;
+    font-size:1.1rem;
+    color:var(--text-light);
+  }
+  
+  .payment-methods input[type="radio"]{
+    transform:scale(1.3);
+  }
+  
+  .payment-methods select{
+    width:100%;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #555;
+    background:#444;
+    color:#fff;
+    font-size:1rem;
+    margin-top:8px;
   }
   
   .payment-actions{
     display:flex;
     gap:12px;
-    margin-top:16px;
+    margin-top:20px;
     flex-wrap:wrap;
   }
   
   .payment-actions .btn{
     flex:1;
     min-width:120px;
+    padding:14px 20px;
+    font-size:1rem;
+    font-weight:700;
   }
 
   /* SUCCESS STAGE */
@@ -287,6 +329,9 @@
     }
     .cart-controls{
       justify-content:center;
+    }
+    #userInfo{
+      font-size:0.7rem; /* Lebih kecil di mobile */
     }
   }
 
@@ -326,7 +371,7 @@
   <!-- APP -->
   <div id="appContainer" class="hidden">
     <div class="topbar">
-      <div id="userInfo" style="font-weight:800"></div>
+      <div id="userInfo" style="font-weight:700;font-size:0.8rem;color:var(--muted)"></div>
       <div style="display:flex;align-items:center;gap:8px">
         <button id="themeToggle" class="icon-btn" title="Mode siang/malam">🌙</button>
         <span id="roleBadge" class="pill">Kasir</span>
@@ -370,7 +415,7 @@
         <div id="qaDiskon" class="chip blue">Diskon</div>
       </div>
 
-      <!-- PAYMENT SYSTEM - 3 STAGES -->
+      <!-- PAYMENT SYSTEM - REVISED -->
       <div class="card" style="margin-top:4px">
         
         <!-- STAGE 1: REVIEW -->
@@ -400,48 +445,42 @@
           </div>
         </div>
 
-        <!-- STAGE 2: PAYMENT -->
+        <!-- STAGE 2: PAYMENT - REVISED -->
         <div id="stagePayment" class="payment-stage">
           <div class="pay-wrap">
-            <div style="font-weight:900;margin-bottom:12px">Metode Pembayaran</div>
+            <div style="font-weight:900;margin-bottom:12px">Detail Pembayaran</div>
             
-            <div class="payment-summary">
+            <div class="payment-detail">
               <div class="summary-row total">
                 <span>Total Pembayaran:</span>
                 <span id="paymentTotal">Rp 0</span>
               </div>
-            </div>
-
-            <div class="payment-methods">
-              <label><input type="radio" name="paymethod" value="Tunai" checked> Tunai</label>
-              <label><input type="radio" name="paymethod" value="Non-Tunai"> Non-Tunai</label>
-              <select id="nonCashDetail" class="btn hidden" style="margin-top:8px;width:100%">
-                <option value="Transfer">Transfer</option>
-                <option value="QRIS">QRIS</option>
-                <option value="Shopee">Shopee</option>
-                <option value="Tokopedia">Tokopedia</option>
-              </select>
+              
+              <div class="payment-methods">
+                <label>
+                  <input type="radio" name="paymethod" value="Tunai" checked> 
+                  Tunai
+                </label>
+                <label>
+                  <input type="radio" name="paymethod" value="Non-Tunai"> 
+                  Non-Tunai
+                </label>
+                <select id="nonCashDetail" class="hidden">
+                  <option value="Transfer">Transfer</option>
+                  <option value="QRIS">QRIS</option>
+                  <option value="Shopee">Shopee</option>
+                  <option value="Tokopedia">Tokopedia</option>
+                </select>
+              </div>
             </div>
 
             <div class="payment-actions">
               <button id="btnBackToReview" class="btn">KEMBALI</button>
-              <button id="btnConfirmPayment" class="btn-primary">KONFIRMASI</button>
-              <button id="btnSaveTransaction" class="btn-green">SIMPAN</button>
+              <button id="btnConfirmSave" class="btn-primary">KONFIRMASI & SIMPAN</button>
             </div>
-          </div>
-        </div>
-
-        <!-- STAGE 3: SUCCESS -->
-        <div id="stageSuccess" class="payment-stage">
-          <div class="pay-wrap">
-            <div class="success-card">
-              <h3>✅ Transaksi Berhasil</h3>
-              <p>ID Transaksi: <span id="transactionId">-</span></p>
-              <p>Total: <span id="successTotal">Rp 0</span></p>
-              <p>Metode: <span id="successMethod">-</span></p>
-            </div>
-
-            <div class="payment-actions">
+            
+            <!-- SUCCESS BUTTONS - HIDDEN BY DEFAULT -->
+            <div id="successButtons" class="payment-actions hidden">
               <button id="btnPrintReceipt" class="btn-primary">CETAK STRUK</button>
               <button id="btnFinish" class="btn-green">SELESAI</button>
             </div>
@@ -521,7 +560,7 @@ let memberActive = false;
 let memberNama = '';
 
 // Payment stages
-let currentStage = 'review'; // 'review', 'payment', 'success'
+let currentStage = 'review'; // 'review', 'payment'
 let lastTransactionId = null;
 
 /* Preferensi UI */
@@ -602,7 +641,7 @@ const laporanPage = document.getElementById('laporanPage');
 tabKasir.onclick   = ()=>{ tabKasir.classList.add('active'); tabLaporan.classList.remove('active'); posPage.classList.remove('hidden'); laporanPage.classList.add('hidden'); };
 tabLaporan.onclick = ()=>{ tabKasir.classList.remove('active'); tabLaporan.classList.add('active'); posPage.classList.add('hidden'); laporanPage.classList.remove('hidden'); muatLaporan(); };
 
-/* ================== PAYMENT STAGES ================== */
+/* ================== PAYMENT STAGES - REVISED ================== */
 function showStage(stage) {
   document.querySelectorAll('.payment-stage').forEach(s => s.classList.remove('active'));
   document.getElementById('stage' + stage.charAt(0).toUpperCase() + stage.slice(1)).classList.add('active');
@@ -618,12 +657,8 @@ document.getElementById('btnProceed').onclick = () => {
 
 document.getElementById('btnBackToReview').onclick = () => showStage('review');
 
-document.getElementById('btnConfirmPayment').onclick = () => {
-  // Just visual confirmation, actual save happens on SIMPAN
-  alert('Pembayaran dikonfirmasi. Klik SIMPAN untuk menyimpan transaksi.');
-};
-
-document.getElementById('btnSaveTransaction').onclick = () => simpanTransaksi();
+// REVISED: Combine confirm and save into one action
+document.getElementById('btnConfirmSave').onclick = () => simpanTransaksi();
 
 document.getElementById('btnPrintReceipt').onclick = () => {
   if(lastTransactionId) cetakStruk(lastTransactionId);
@@ -645,6 +680,12 @@ function resetCart() {
   memberActive = false;
   memberNama = '';
   currentStage = 'review';
+  lastTransactionId = null;
+  
+  // Hide success buttons
+  document.getElementById('successButtons').classList.add('hidden');
+  document.getElementById('btnConfirmSave').classList.remove('hidden');
+  
   renderCart();
   showStage('review');
 }
@@ -763,7 +804,7 @@ function calcTotals(){
   return {count,total,saving,grand: total};
 }
 
-// RENDER CART - Following the image design
+// RENDER CART - With smaller buttons matching product name size
 function renderCart(){
   if(keranjang.length === 0) {
     cartList.innerHTML = '<div style="color:#999;text-align:center;padding:20px">Keranjang kosong</div>';
@@ -788,7 +829,7 @@ function renderCart(){
             <input class="qty-display" value="${item.qty}" onchange="setQty('${item.id}',this.value)" readonly>
             <button class="qty-control" onclick="chgQty('${item.id}',1)">+</button>
             <button class="nego-btn" onclick="toggleNego('${item.id}')">Nego</button>
-            <span style="color:#fff;margin:0 4px">Rp</span>
+            <span style="color:#fff;margin:0 4px;font-size:0.75rem">Rp</span>
             <input class="nego-input" id="nego_${item.id}" type="number" value="${item.hargaAkhirSatuan}" min="0">
             <button class="nego-ok" id="ok_${item.id}" onclick="applyNego('${item.id}')">OK</button>
           </div>
@@ -870,7 +911,7 @@ document.querySelectorAll('input[name="paymethod"]').forEach(r=>{
   };
 });
 
-/* ================== SAVE TRANSACTION ================== */
+/* ================== SAVE TRANSACTION - REVISED ================== */
 async function simpanTransaksi(){
   if(!keranjang.length) return alert('Keranjang kosong.');
   
@@ -897,15 +938,14 @@ async function simpanTransaksi(){
     const res = await postData('simpanTransaksi', payload);
     if(!(res && res.success)) return alert('Gagal menyimpan transaksi.');
 
-    // Success - show stage 3
+    // Success - show success buttons
     lastTransactionId = res.id;
-    const total = calcTotals().grand;
     
-    document.getElementById('transactionId').textContent = res.id;
-    document.getElementById('successTotal').textContent = rupiah(total);
-    document.getElementById('successMethod').textContent = metode + (det ? ` - ${det}` : '');
+    // Hide confirm button and show success buttons
+    document.getElementById('btnConfirmSave').classList.add('hidden');
+    document.getElementById('successButtons').classList.remove('hidden');
     
-    showStage('success');
+    alert(`✅ Transaksi berhasil disimpan!\nID: ${res.id}\nTotal: ${rupiah(calcTotals().grand)}`);
     
     if (tabLaporan.classList.contains('active')) muatLaporan();
   } catch(e) {
